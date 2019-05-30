@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/daddysHome/kinect2bvh/test.cpp
+iterator
+-
+iostream
+-
+fstream
+-
+sstream
+-
+vector
+-
+string
+-
+
