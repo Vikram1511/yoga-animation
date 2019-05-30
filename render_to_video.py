@@ -1,68 +1,73 @@
 import bpy
 import os
-
-mhx2ModelPath = "D:/IITD/Summer_2019/characters/adult_female.mhx2"
-bvhFilePath = "D:/IITD/Summer_2019/subject/Subj001_Natarajasana_joints_processed.bvh"
-outputDirPath = 'D:/IITD/Summer_2019/blender_scripts/rendered_output/tmp/'
-
-
-#delete everything
+from math import *
+from mathutils import *
+    
 bpy.ops.object.select_all(action='TOGGLE')
 bpy.ops.object.select_all(action='TOGGLE')
 bpy.ops.object.delete(use_global=False)
 
+def getFiles(folderpath,extension):
+    path = folderpath
+    files = []
+    # r=root, d=directories, f = files
+    for r, d, f in os.walk(path):
+        for file in f:
+            if extension in file:
+                files.append(os.path.join(r, file))
+    return files
 
-#import makehuman model
-bpy.ops.import_scene.makehuman_mhx2(filepath=mhx2ModelPath)
+#to get mhx2 files and bvh files in list
+mhx2path = "C:/Users/Vikram Jain/Documents/SummerProject/kinect2bvh/Character"
+bvhpath = "C:/Users/Vikram Jain/Documents/SummerProject/kinect2bvh/bvhFiles"
 
-#retarget it on a .bvh file
-bpy.ops.mcp.load_and_retarget(filepath=bvhFilePath)
+MHX2List = getFiles(mhx2path,".mhx2")
+BVHList = getFiles(bvhpath,".bvh")
+#defining number of scenes which is equal to number of characters we have
+scn = len(MHX2List)
 
-#toggle to object mode
-bpy.ops.object.posemode_toggle()
+#loop for each scene 
+for i in range(scn):
+	#adding camera
+    bpy.ops.object.camera_add()   
 
-#add camera and lamp
-bpy.ops.object.camera_add(location=(0,-40,20), rotation=(1.3,0,0))
-#bpy.ops.object.camera_add(location=(-40,-40,40), rotation=(1,0,-0.785))
+    #adding lamp                         																	 
+    bpy.ops.object.lamp_add(type='HEMI')	
 
-bpy.ops.object.lamp_add(type='HEMI', radius=1, location=(0,-10,10))
+    #importing make human file in blender from list which contains all the files with extension ".mhx2" with their path																	
+    bpy.ops.import_scene.makehuman_mhx2(filepath = MHX2List[i])		
 
-#bpy.ops.object.lamp_add(type='AREA', radius=1, location=(-10,-10,10))
-#bpy.ops.object.lamp_add(type='AREA', radius=1, location=(10,-10,10))
-#bpy.ops.object.lamp_add(type='AREA', radius=1, location=(-10,-10,40))
-#bpy.ops.object.lamp_add(type='AREA', radius=1, location=(10,-10,40))
+    #setting current scene's camera for rendering the current scene's animation
+    bpy.context.scene.camera = bpy.data.objects[bpy.data.cameras[i].name]
 
-#setting this new camera as the scene's camera
-bpy.context.scene.camera = bpy.data.objects['Camera']
+    #setting location for camera,lamp for current scene which will be same for all the scene
+    bpy.data.scenes[i].objects[bpy.data.cameras[i].name].location = Vector((-1.6719582080841064, -41.433406829833984, 4.720533847808838))
+    bpy.data.scenes[i].objects[bpy.data.cameras[i].name].rotation_euler = Euler((1.6681835651397705, -0.0017817476764321327, 6.209451198577881), 'XYZ')
+    bpy.data.scenes[i].objects[bpy.data.cameras[i].name].scale = Vector((1.4308398962020874, 1.4057042598724365, 1.8842936754226685))
+    bpy.data.scenes[i].objects[bpy.data.lamps[i].name].location = Vector((-1.6768434047698975, -5.329115867614746, 38.93578338623047))
+    bpy.data.scenes[i].objects[bpy.data.lamps[i].name].rotation_euler = Euler((0.032153837382793427, 0.0016589768929407, 4.444016933441162), 'XYZ')
 
-#render settings
-#un-comment following two lines to use GPU rendering
+    #load_and_retarget bvh files
+    #looping through all the bvh files which exist in our list "BVHList" and retarget for each character in one scene
+    for j in range(len(BVHList)):
+        bpy.ops.mcp.load_and_retarget(filter_glob = ".bvh",filepath = BVHList[j])
 
-#bpy.context.scene.render.engine = 'CYCLES'
-#bpy.context.scene.cycles.device = 'GPU'
+        #setting frames start and end , we can change accordingly or even can find the appropriate frames for each bvh file and set it as end frame value
+        bpy.data.scenes[i].frame_start = 1
+        bpy.data.scenes[i].frame_end = 3
 
-bpy.data.scenes[0].frame_start = 1
-bpy.data.scenes[0].frame_end = 50
-bpy.data.scenes[0].frame_step = 1
+        #setting image file format for rendering
+        bpy.data.scenes[i].render.image_settings.file_format = 'FFMPEG'
 
-bpy.data.scenes[0].render.resolution_x = 1920
-bpy.data.scenes[0].render.resolution_y = 1080
-bpy.data.scenes[0].render.resolution_percentage = 50
+        #setting directory for rendered animation video which will have multiple directory and named by character name and will have all the animation videos for that character
+        bpy.data.scenes[i].render.filepath = "C:/Users/Vikram Jain/Documents/SummerProject/kinect2bvh/Animation/"+MHX2List[i][len(mhx2path):len(MHX2List[i])-5]+"/"+BVHList[j][len(bvhpath):len(BVHList[j])-4]
+        
+        #to not overwrite the animated videos
+        bpy.context.scene.render.use_overwrite = False
+        bpy.ops.render.render(animation = True)
 
-bpy.data.scenes[0].render.use_antialiasing = True
-bpy.data.scenes[0].render.antialiasing_samples='8'
-
-bpy.data.scenes[0].render.use_textures=True
-bpy.data.scenes[0].render.use_shadows=True
-bpy.data.scenes[0].render.use_sss=True
-bpy.data.scenes[0].render.use_envmaps=True
-bpy.data.scenes[0].render.use_raytrace=True
-
-bpy.data.scenes[0].render.image_settings.file_format='FFMPEG'
-bpy.data.scenes[0].render.image_settings.color_mode='RGB'
-
-#specify where to output rendered images
-bpy.data.scenes[0].render.filepath = outputDirPath
-
-#render animation frames to .avi
-bpy.ops.render.render(animation=True)
+    #after the rendering all videos for one character we will generate new scene in blender for next character
+    bpy.ops.scene.new(type="NEW")
+    
+    #set new generated scene as context scene
+    bpy.context.screen.scene=bpy.data.scenes[i+1]
