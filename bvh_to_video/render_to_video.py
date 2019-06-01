@@ -7,9 +7,9 @@ bpy.ops.object.select_all(action='TOGGLE')
 bpy.ops.object.select_all(action='TOGGLE')
 bpy.ops.object.delete(use_global=False)
 
-mhx2path = "D:/IITD/Summer_2019/yoga-pose-estimation/characters"
-bvhpath = "D:/IITD/Summer_2019/yoga-pose-estimation/bvhFiles"
-OutputDirPath = "D:/IITD/Summer_2019/yoga-pose-estimation/Animation"
+mhx2path = "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/characters"
+bvhpath = "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/bvhFiles"
+OutputDirPath = "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/Animation"
 
 def getFiles(folderpath,extension):
     path = folderpath

@@ -1,3 +1,3 @@
 cd C:\Program Files\Blender Foundation\Blender
 
-blender -b -P "D:\IITD\Summer_2019\blender_scripts\rendering to avi\render_to_video.py"
+blender -b -P "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/bvh_to_video/render_to_video.py"
