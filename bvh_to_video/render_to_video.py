@@ -7,6 +7,10 @@ bpy.ops.object.select_all(action='TOGGLE')
 bpy.ops.object.select_all(action='TOGGLE')
 bpy.ops.object.delete(use_global=False)
 
+mhx2path = "D:/IITD/Summer_2019/yoga-pose-estimation/characters"
+bvhpath = "D:/IITD/Summer_2019/yoga-pose-estimation/bvhFiles"
+OutputDirPath = "D:/IITD/Summer_2019/yoga-pose-estimation/Animation"
+
 def getFiles(folderpath,extension):
     path = folderpath
     files = []
@@ -18,8 +22,7 @@ def getFiles(folderpath,extension):
     return files
 
 #to get mhx2 files and bvh files in list
-mhx2path = "C:/Users/Vikram Jain/Documents/SummerProject/kinect2bvh/Character"
-bvhpath = "C:/Users/Vikram Jain/Documents/SummerProject/kinect2bvh/bvhFiles"
+
 
 MHX2List = getFiles(mhx2path,".mhx2")
 BVHList = getFiles(bvhpath,".bvh")
@@ -54,19 +57,19 @@ for i in range(scn):
 
         #setting frames start and end , we can change accordingly or even can find the appropriate frames for each bvh file and set it as end frame value
         bpy.data.scenes[i].frame_start = 1
-        bpy.data.scenes[i].frame_end = 3
+        bpy.data.scenes[i].frame_end = 50
 
         #setting image file format for rendering
         bpy.data.scenes[i].render.image_settings.file_format = 'FFMPEG'
 
         #setting directory for rendered animation video which will have multiple directory and named by character name and will have all the animation videos for that character
-        bpy.data.scenes[i].render.filepath = "C:/Users/Vikram Jain/Documents/SummerProject/kinect2bvh/Animation/"+MHX2List[i][len(mhx2path):len(MHX2List[i])-5]+"/"+BVHList[j][len(bvhpath):len(BVHList[j])-4]
+        bpy.data.scenes[i].render.filepath = OutputDirPath+MHX2List[i][len(mhx2path):len(MHX2List[i])-5]+"/"+BVHList[j][len(bvhpath):len(BVHList[j])-4]
         
         #to not overwrite the animated videos
         bpy.context.scene.render.use_overwrite = False
         bpy.ops.render.render(animation = True)
 
-    #after the rendering all videos for one character we will generate new scene in blender for next character
+    #after rendering all videos for one character, we will generate new scene in blender for next character
     bpy.ops.scene.new(type="NEW")
     
     #set new generated scene as context scene
