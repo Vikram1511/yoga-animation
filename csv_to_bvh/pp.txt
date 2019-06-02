@@ -1,1 +1,0 @@
-joints3_processed.csv
