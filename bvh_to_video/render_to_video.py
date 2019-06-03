@@ -22,9 +22,14 @@ def getFiles(folderpath,extension):
 # filep2 = "/Users/daddysHome/Downloads/tpose_sample.mhx2"
 
 # filebvh1 = "/Users/daddysHome/Downloads/kinect2bvh 2/Subj002_Katichakrasana_joints_processed.bvh"
-MHX2List = getFiles("/Users/daddysHome/Downloads",".mhx2")
-BVHList = getFiles("/Users/daddysHome/Downloads/kinect2bvh 2",".bvh")
-backgroundImages = getFiles("/Users/daddysHome/Downloads/backgroundImage",".jpg")
+mhx2path = "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/characters"
+bvhpath = "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/bvhFiles"
+backgroundpath ="C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/BackgroundImages"
+OutputDirPath = "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/Animation/"
+
+MHX2List = getFiles(mhx2path,".mhx2")
+BVHList = getFiles(bvhpath,".bvh")
+backgroundImages = getFiles(backgroundpath,".jpg")
 for a in bpy.context.screen.areas:
         if a.type == "VIEW_3D":
             break
@@ -45,17 +50,18 @@ for i in range(scn):
     bpy.ops.import_scene.makehuman_mhx2(filepath = MHX2List[i])
     person = bpy.data.scenes[i].objects[2].name
     bpy.context.scene.camera = bpy.data.objects[bpy.data.cameras[i].name]
-    bpy.data.scenes[i].objects[bpy.data.cameras[i].name].location = Vector((-1.6719582080841064, -41.433406829833984, 4.720533847808838))
-    bpy.data.scenes[i].objects[bpy.data.cameras[i].name].rotation_euler = Euler((1.6681835651397705, -0.0017817476764321327, 6.209451198577881), 'XYZ')
-    bpy.data.scenes[i].objects[bpy.data.cameras[i].name].scale = Vector((1.4308398962020874, 1.4057042598724365, 1.8842936754226685))
+    bpy.data.scenes[i].objects[bpy.data.cameras[i].name].location = Vector((0, -5, 0))
+    bpy.data.scenes[i].objects[bpy.data.cameras[i].name].rotation_euler = Euler((1.57, 0, 6.28), 'XYZ')
+    bpy.data.scenes[i].objects[bpy.data.cameras[i].name].scale = Vector((0.5, 0.5, 0.5))
     bpy.data.scenes[i].objects[bpy.data.lamps[i].name].location = Vector((-1.6768434047698975, -5.329115867614746, 38.93578338623047))
     bpy.data.scenes[i].objects[bpy.data.lamps[i].name].rotation_euler = Euler((0.032153837382793427, 0.0016589768929407, 4.444016933441162), 'XYZ')
     for j in range(len(BVHList)):
         bpy.ops.mcp.load_and_retarget(filter_glob = ".bvh",filepath = BVHList[j])
         bpy.data.scenes[i].frame_start = 1
-        bpy.data.scenes[i].frame_end = 50
+        bpy.data.scenes[i].frame_end = 100
+        bpy.data.scenes[i].frame_step = 3
         bpy.data.scenes[i].render.image_settings.file_format = 'FFMPEG'
-        bpy.data.scenes[i].render.filepath = "/Users/daddysHome/Downloads/animation/"+MHX2List[i][28:len(MHX2List[i])-5]+"/"+BVHList[j][40:len(BVHList[j])-5]
+        bpy.data.scenes[i].render.filepath = OutputDirPath+MHX2List[i][len(mhx2path):len(MHX2List[i])-5]+"/"+BVHList[j][len(bvhpath):len(BVHList[j])-4]
         bpy.context.scene.render.use_overwrite = False
         bpy.ops.render.render(animation=True)
         
