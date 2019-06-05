@@ -3,7 +3,7 @@ import sys
 
 filename = sys.argv[1]
 path = './'
-csvFile = open(path + filename,"r")
+csvFile = open(path + filename.strip(),"r")
 reader = csv.reader(csvFile)
 jointCoord = []
 
