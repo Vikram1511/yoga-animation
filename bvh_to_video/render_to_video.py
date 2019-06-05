@@ -58,8 +58,8 @@ for i in range(scn):
     for j in range(len(BVHList)):
         bpy.ops.mcp.load_and_retarget(filter_glob = ".bvh",filepath = BVHList[j])
         bpy.data.scenes[i].frame_start = 1
-        bpy.data.scenes[i].frame_end = 100
-        bpy.data.scenes[i].frame_step = 3
+        bpy.data.scenes[i].frame_end = 50
+        bpy.data.scenes[i].frame_step = 1
         bpy.data.scenes[i].render.image_settings.file_format = 'FFMPEG'
         bpy.data.scenes[i].render.filepath = OutputDirPath+MHX2List[i][len(mhx2path):len(MHX2List[i])-5]+"/"+BVHList[j][len(bvhpath):len(BVHList[j])-4]
         bpy.context.scene.render.use_overwrite = False
