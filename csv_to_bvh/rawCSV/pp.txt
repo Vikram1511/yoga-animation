@@ -1,2 +1,0 @@
-../rawCSV/joints.csv
-../rawCSV/joints3.csv

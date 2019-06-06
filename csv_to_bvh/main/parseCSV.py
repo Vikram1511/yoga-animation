@@ -2,7 +2,10 @@ import csv
 import sys
 
 filename = sys.argv[1]
-path = './'
+
+outputfiledir = sys.argv[2]
+
+path = "../rawCSV/"
 csvFile = open(path + filename.strip(),"r")
 reader = csv.reader(csvFile)
 jointCoord = []
@@ -29,7 +32,7 @@ for line in reader :
 		continue;
 	i+= 1
 
-outputfilename = filename[:-4] + "_processed.csv" 
+outputfilename = outputfiledir+filename[:-5] + "_processed.csv" 
 
 with open(outputfilename, "w") as f:
     writer = csv.writer(f)
