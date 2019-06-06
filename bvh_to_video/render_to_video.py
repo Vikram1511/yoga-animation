@@ -40,6 +40,7 @@ texture = bpy.data.textures.new("Texture.001","IMAGE")
 bpy.data.worlds['World'].active_texture = texture
 bpy.context.scene.world.texture_slots[0].use_map_horizon=True
 bpy.data.worlds[0].use_sky_paper = True
+rootlen = len(mhx2path)
 for i in range(scn):
     bpy.context.scene.world = bpy.data.worlds[0]
     texture.image=img
@@ -48,6 +49,9 @@ for i in range(scn):
     bpy.ops.object.camera_add()
     bpy.ops.object.lamp_add(type='HEMI')
     bpy.ops.import_scene.makehuman_mhx2(filepath = MHX2List[i])
+    person_name = MHX2List[i][rootlen+1:-5].capitalize()
+    for bone in bpy.data.objects[person_name].pose.bones:
+        bone.rotation_mode = "ZXY"
     person = bpy.data.scenes[i].objects[2].name
     bpy.context.scene.camera = bpy.data.objects[bpy.data.cameras[i].name]
     bpy.data.scenes[i].objects[bpy.data.cameras[i].name].location = Vector((0, -5, 0))
