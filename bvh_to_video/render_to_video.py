@@ -48,10 +48,16 @@ for i in range(scn):
     # screen = bpy.context.screen
     bpy.ops.object.camera_add()
     bpy.ops.object.lamp_add(type='HEMI')
-    bpy.ops.import_scene.makehuman_mhx2(filepath = MHX2List[i])
+    bpy.ops.import_scene.makehuman_mhx2(filepath = MHX2List[i],useOverride = True,rigType = "MHX")
+    # for fk to ik switching of leg bones
+
+    bpy.ops.mhx2.toggle_fk_ik(toggle="MhaLegIk_L 1 4 5")
+    bpy.ops.mhx2.toggle_fk_ik(toggle="MhaLegIk_R 1 20 21")
+    ## bpy.ops.mhx2.toggle_fk_ik(toggle="MhaArmIk_L 1 2 3")   - arm is not necessary
+    ## bpy.ops.mhx2.toggle_fk_ik(toggle="MhaArmIk_R 1 18 19")  - arm is not necessary
     person_name = MHX2List[i][rootlen+1:-5].capitalize()
-    for bone in bpy.data.objects[person_name].pose.bones:
-        bone.rotation_mode = "ZXY"
+    # for bone in bpy.data.objects[person_name].pose.bones:
+    #     bone.rotation_mode = "ZXY"
     person = bpy.data.scenes[i].objects[2].name
     bpy.context.scene.camera = bpy.data.objects[bpy.data.cameras[i].name]
     bpy.data.scenes[i].objects[bpy.data.cameras[i].name].location = Vector((0, -5, 0))
@@ -61,9 +67,18 @@ for i in range(scn):
     bpy.data.scenes[i].objects[bpy.data.lamps[i].name].rotation_euler = Euler((0.032153837382793427, 0.0016589768929407, 4.444016933441162), 'XYZ')
     for j in range(len(BVHList)):
         bpy.ops.mcp.load_and_retarget(filter_glob = ".bvh",filepath = BVHList[j])
+        frame_range = bpy.data.objects[person_name].animation_data.action.frame_range[1]
+        #for simplyfying f curves 
+
+        bpy.data.scenes[0].McpShowIK=True
+        bpy.data.scenes[0].McpFkIkArms=False
+        bpy.ops.mcp.transfer_to_ik()
+        bpy.ops.mcp.simplify_fcurves()
+        bpy.ops.graph.simplify(error=0.95)
         bpy.data.scenes[i].frame_start = 1
-        bpy.data.scenes[i].frame_end = 50
+        bpy.data.scenes[i].frame_end = frame_range
         bpy.data.scenes[i].frame_step = 1
+        bpy.data.scenes[i].render.fps=30
         bpy.data.scenes[i].render.image_settings.file_format = 'FFMPEG'
         bpy.data.scenes[i].render.filepath = OutputDirPath+MHX2List[i][len(mhx2path):len(MHX2List[i])-5]+"/"+BVHList[j][len(bvhpath):len(BVHList[j])-4]
         bpy.context.scene.render.use_overwrite = False
