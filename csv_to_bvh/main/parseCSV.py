@@ -31,8 +31,9 @@ for line in reader :
 	except:
 		continue;
 	i+= 1
+totalBvhFrames = (i/25)
 
-outputfilename = outputfiledir+filename[:-5] + "_processed.csv" 
+outputfilename = outputfiledir+filename[:-5] + "_processed_"+str(totalBvhFrames)+".csv" 
 
 with open(outputfilename, "w") as f:
     writer = csv.writer(f)

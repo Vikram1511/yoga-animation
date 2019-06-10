@@ -1,1 +1,1 @@
-../processedCSV/joints_processed.csv
+../processedCSV/subj001_santolasana_processed_1272.0.csv

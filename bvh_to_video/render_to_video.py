@@ -66,17 +66,22 @@ for i in range(scn):
     bpy.data.scenes[i].objects[bpy.data.lamps[i].name].location = Vector((-1.6768434047698975, -5.329115867614746, 38.93578338623047))
     bpy.data.scenes[i].objects[bpy.data.lamps[i].name].rotation_euler = Euler((0.032153837382793427, 0.0016589768929407, 4.444016933441162), 'XYZ')
     for j in range(len(BVHList)):
-        bpy.ops.mcp.load_and_retarget(filter_glob = ".bvh",filepath = BVHList[j])
+        file_bvh = BVHList[j]
+        arr = file_bvh.split(".")
+        arr = arr[0].split("_")
+        frame_end = int(arr[len(arr)-1])
+        bpy.data.scenes[i].McpEndFrame = frame_end
+        bpy.ops.mcp.load_and_retarget(filter_glob = ".bvh",filepath = file_bvh)
         frame_range = bpy.data.objects[person_name].animation_data.action.frame_range[1]
         #for simplyfying f curves 
 
-        bpy.data.scenes[0].McpShowIK=True
-        bpy.data.scenes[0].McpFkIkArms=False
+        bpy.data.scenes[i].McpShowIK=True
+        bpy.data.scenes[i].McpFkIkArms=False
         bpy.ops.mcp.transfer_to_ik()
         bpy.ops.mcp.simplify_fcurves()
         bpy.ops.graph.simplify(error=0.95)
         bpy.data.scenes[i].frame_start = 1
-        bpy.data.scenes[i].frame_end = frame_range
+        bpy.data.scenes[i].frame_end = 20
         bpy.data.scenes[i].frame_step = 1
         bpy.data.scenes[i].render.fps=30
         bpy.data.scenes[i].render.image_settings.file_format = 'FFMPEG'
