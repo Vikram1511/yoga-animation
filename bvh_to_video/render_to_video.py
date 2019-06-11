@@ -81,9 +81,9 @@ for i in range(scn):
         bpy.ops.mcp.simplify_fcurves()
         bpy.ops.graph.simplify(error=0.95)
         bpy.data.scenes[i].frame_start = 1
-        bpy.data.scenes[i].frame_end = 20
+        bpy.data.scenes[i].frame_end = frame_end
         bpy.data.scenes[i].frame_step = 1
-        bpy.data.scenes[i].render.fps=30
+        bpy.data.scenes[i].render.fps=60
         bpy.data.scenes[i].render.image_settings.file_format = 'FFMPEG'
         bpy.data.scenes[i].render.filepath = OutputDirPath+MHX2List[i][len(mhx2path):len(MHX2List[i])-5]+"/"+BVHList[j][len(bvhpath):len(BVHList[j])-4]
         bpy.context.scene.render.use_overwrite = False
