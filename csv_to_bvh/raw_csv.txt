@@ -1,0 +1,5 @@
+rawCSV/joints.csv
+rawCSV/joints3.csv
+rawCSV/subj001_natarajasna.csv
+rawCSV/subj001_naukasana.csv
+rawCSV/subj001_santolasana.csv

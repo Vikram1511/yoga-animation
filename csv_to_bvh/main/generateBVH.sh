@@ -1,4 +1,4 @@
 #!/bin/bash
-while IFS='' read -r line || [[ -n "$line" ]]; do
-    ./a.exe $line "$2"
-done < "$1"
+if [ $# > 2 ]; then
+    ./a.exe "$1" "$2"
+fi

@@ -2,11 +2,9 @@ import csv
 import sys
 
 filename = sys.argv[1]
-
+absfilename = filename.split("/")[1]
 outputfiledir = sys.argv[2]
-
-path = "../rawCSV/"
-csvFile = open(path + filename.strip(),"r")
+csvFile = open(filename.strip(),"r")
 reader = csv.reader(csvFile)
 jointCoord = []
 
@@ -33,7 +31,7 @@ for line in reader :
 	i+= 1
 totalBvhFrames = (i/25)
 
-outputfilename = outputfiledir+filename[:-5] + "_processed_"+str(totalBvhFrames)+".csv" 
+outputfilename = outputfiledir+absfilename[:-5] + "_processed_"+str(totalBvhFrames)+".csv" 
 
 with open(outputfilename, "w") as f:
     writer = csv.writer(f)

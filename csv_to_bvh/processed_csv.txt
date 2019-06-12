@@ -1,0 +1,5 @@
+../processedCSV/joints3_processed_2400.0.csv
+../processedCSV/joints_processed_2012.0.csv
+../processedCSV/subj001_natarajasna_processed_2712.0.csv
+../processedCSV/subj001_naukasana_processed_1412.0.csv
+../processedCSV/subj001_santolasana_processed_1272.0.csv

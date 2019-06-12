@@ -1,8 +1,5 @@
-cd rawCSV
-python run_main.py
-
-cd ../main
-bash generateCSV.sh "pp.txt" "../processedCSV/"
-
-cd ../processedCSV
-python run_main.py
+python "write_rawjointsFiles.py"
+bash main/generateCSV.sh "raw_csv.txt" "processedCSV/"
+python "write_processedjointsFiles.py"
+cd main
+bash generateBVH.sh "../processed_csv.txt" "../../bvhFiles"

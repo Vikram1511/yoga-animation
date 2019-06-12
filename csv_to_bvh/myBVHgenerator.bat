@@ -1,0 +1,1 @@
+bash ../main/generateBVH.sh "../processedCSV/processed_csv.txt" "../../bvhFiles"

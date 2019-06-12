@@ -540,11 +540,17 @@ int main( int argc, char *argv[] )
         all_args.assign(argv + 1, argv + argc);
     }
 
+    std::ifstream infile(argv[1]);
 
-    string filename = all_args.at(0) ;
-    string noExtFN = filename.substr(0, filename.size() - 4) ;
-    std::string onlyFileName = noExtFN;
-    std::string delimiter = "/";
+    if (infile.is_open() && infile.good()) {
+        cout << "File is now open!\nContains:\n";
+        string line;
+        while (getline(infile, line)){
+              cout <<line<<"\n";
+            string filename = line;
+            string noExtFN = filename.substr(0, filename.size() - 4) ;
+            std::string onlyFileName = noExtFN;
+           std::string delimiter = "/";
 
     size_t pos = 0;
     std::string token;
@@ -569,5 +575,14 @@ int main( int argc, char *argv[] )
     {
         delete m_pKinectBVH;
         m_pKinectBVH = NULL;
+        }
     }
+        }
+        
+  else {
+        cout << "Failed to open file..";
+    }
+
+    
 }
+
