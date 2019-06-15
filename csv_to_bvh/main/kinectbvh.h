@@ -2,7 +2,7 @@
 #define KINECTBVH_H
 
 // BVH use centimeter by default, we scale to meter to match the default unit of Blender.
-#define SCALE 0.01f
+#define SCALE 1
 
 // 30 FPS
 #define FPS 0.033333
@@ -47,6 +47,7 @@ typedef struct Joint {
     Joint() : tracked(false) {}
     Quaternion quat;
     Vec3 pos;
+    string Tracked; 
     bool tracked;
 } Joint;
 
@@ -438,10 +439,10 @@ private:
         for (int i = 0; i < static_cast<int>(m_vJointsOrientation.size() / JOINT_SIZE); i++) {
             // The position of the root joint in centimeter, as the unit in Freenect is millimeter, we multiple it 0.1.
             Joint* joints = &m_vJointsOrientation[i * JOINT_SIZE];
-            flux << joints[JOINT_TORSO].pos.x * SCALE * 0.1f << " " << joints[JOINT_TORSO].pos.y * SCALE * 0.1f << " "
-            << joints[JOINT_TORSO].pos.z * SCALE * 0.1f << " ";
+            flux << joints[JOINT_TORSO].pos.x * SCALE*100  << " " << joints[JOINT_TORSO].pos.y * SCALE*100  << " "
+            << joints[JOINT_TORSO].pos.z * SCALE*100  << " ";
             
-            // Write the Euler angle of every joint(ZYX).
+            // Write the Euler angle of every joint(XYZ).
             WriteJoint(flux, joints, JOINT_TORSO);
             WriteJoint(flux, joints, JOINT_NECK);
             WriteJoint(flux, joints, JOINT_HEAD);

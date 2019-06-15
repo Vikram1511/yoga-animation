@@ -281,31 +281,31 @@
 #define xRow 4
 #define yRow 5
 #define zRow 6
-#define spineBase 0
-#define spineMid 4
-#define neck 8
-#define head 12
-#define shoulderLeft 16
-#define elbowLeft 20
-#define wristLeft 24
-#define handLeft 28
-#define shoulderRight 32
-#define elbowRight 36
-#define wristRight 40
-#define handRight 44
-#define hipLeft 48
-#define kneeLeft 52
-#define ankleLeft 56
-#define footLeft 60
-#define hipRight 64
-#define kneeRight 68
-#define ankleRight 72
-#define footRight 76
-#define spineShoulder 80
-#define handTipLeft 84
-#define thumbLeft 88
-#define handTipRight 92
-#define thumbRight 96
+#define spineBase 1
+#define spineMid 6
+#define neck 11
+#define head 16
+#define shoulderLeft 21
+#define elbowLeft 26
+#define wristLeft 31
+#define handLeft 36
+#define shoulderRight 41
+#define elbowRight 46
+#define wristRight 51
+#define handRight 56
+#define hipLeft 61
+#define kneeLeft 66
+#define ankleLeft 71
+#define footLeft 76
+#define hipRight 81
+#define kneeRight 86
+#define ankleRight 91
+#define footRight 96
+#define spineShoulder 101
+#define handTipLeft 106
+#define thumbLeft 111
+#define handTipRight 116
+#define thumbRight 121
 
 
 using namespace std ;
@@ -374,7 +374,13 @@ void ProcessBonesOrientation(vector<Joint> skeletonJoints)
         // convert to right hand coordinate
         joints[i].pos.z = -joint.pos.z; // NOT SURE ABOUT THIS, MUST CHECK THIS
         // joints[i].tracked = skel.getJoint((nite::JointType)i).getPositionConfidence() > 0.5f;
-        joints[i].tracked = true ;
+        if(joint.Tracked=="tracked"){
+            joints[i].tracked = true ;
+        }
+        else{
+            joints[i].tracked = false ;
+        }
+        
     }
 
     // Add the positions of all joints.
@@ -421,76 +427,91 @@ vector<vector<Joint> > readJointsFromCSV( string filename) {
         currJoint.pos.x = stof(row[head + 1]) ;
         currJoint.pos.y = stof(row[head + 2]) ;
         currJoint.pos.z = stof(row[head + 3]) ;
+        currJoint.Tracked = (row[head+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
         currJoint.pos.x = stof(row[spineShoulder + 1]) ;
         currJoint.pos.y = stof(row[spineShoulder + 2]) ;
         currJoint.pos.z = stof(row[spineShoulder + 3]) ;
+        currJoint.Tracked = (row[spineShoulder+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
         currJoint.pos.x = stof(row[shoulderLeft + 1]) ;
         currJoint.pos.y = stof(row[shoulderLeft + 2]) ;
         currJoint.pos.z = stof(row[shoulderLeft + 3]) ;
+        currJoint.Tracked = (row[shoulderLeft+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
         currJoint.pos.x = stof(row[shoulderRight + 1]) ;
         currJoint.pos.y = stof(row[shoulderRight + 2]) ;
         currJoint.pos.z = stof(row[shoulderRight + 3]) ;
+        currJoint.Tracked = (row[shoulderRight+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
         currJoint.pos.x = stof(row[elbowLeft + 1]) ;
         currJoint.pos.y = stof(row[elbowLeft + 2]) ;
         currJoint.pos.z = stof(row[elbowLeft + 3] ) ;
+        currJoint.Tracked = (row[elbowLeft+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
         currJoint.pos.x = stof(row[elbowRight + 1]) ;
         currJoint.pos.y = stof(row[elbowRight + 2]) ;
         currJoint.pos.z = stof(row[elbowRight + 3]) ;
+        currJoint.Tracked = (row[elbowRight+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
         currJoint.pos.x = stof(row[handLeft + 1]) ;
         currJoint.pos.y = stof(row[handLeft + 2]) ;
         currJoint.pos.z = stof(row[handLeft + 3]) ;
+        currJoint.Tracked = (row[handLeft+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
         currJoint.pos.x = stof(row[handRight + 1]) ;
         currJoint.pos.y = stof(row[handRight + 2]) ;
         currJoint.pos.z = stof(row[handRight + 3]) ;
+        currJoint.Tracked = (row[handRight+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
-        currJoint.pos.x = ( stof(row[spineMid + 1]) + stof(row[spineBase + 1]) ) / 2 ;
-        currJoint.pos.y = ( stof(row[spineMid + 2]) + stof(row[spineBase + 2]) ) / 2 ;
-        currJoint.pos.z = ( stof(row[spineMid + 3]) + stof(row[spineBase + 3]) ) / 2 ;
+        currJoint.pos.x = (  stof(row[spineBase + 1]) )  ;
+        currJoint.pos.y = ( stof(row[spineBase + 2]) ) ;
+        currJoint.pos.z = (  stof(row[spineBase + 3]) ) ;
+        currJoint.Tracked = (row[spineBase+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
         currJoint.pos.x = stof(row[hipLeft + 1]) ;
         currJoint.pos.y = stof(row[hipLeft + 2]) ;
         currJoint.pos.z = stof(row[hipLeft + 3]) ;
+        currJoint.Tracked = (row[hipLeft+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
         currJoint.pos.x = stof(row[hipRight + 1]) ;
         currJoint.pos.y = stof(row[hipRight + 2]) ;
         currJoint.pos.z = stof(row[hipRight + 3]) ;
+        currJoint.Tracked = (row[hipRight+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
         currJoint.pos.x = stof(row[kneeLeft + 1]) ;
         currJoint.pos.y = stof(row[kneeLeft + 2]) ;
         currJoint.pos.z = stof(row[kneeLeft + 3]) ;
+        currJoint.Tracked = (row[kneeLeft+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
         currJoint.pos.x = stof(row[kneeRight + 1]) ;
         currJoint.pos.y = stof(row[kneeRight + 2]) ;
         currJoint.pos.z = stof(row[kneeRight + 3]) ;
+        currJoint.Tracked = (row[kneeRight+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
-        currJoint.pos.x = stof(row[footLeft + 1]) ;
-        currJoint.pos.y = stof(row[footLeft + 2]) ;
-        currJoint.pos.z = stof(row[footLeft + 3]) ;
+        currJoint.pos.x = stof(row[ankleLeft + 1]) ;
+        currJoint.pos.y = stof(row[ankleLeft + 2]) ;
+        currJoint.pos.z = stof(row[ankleLeft + 3]) ;
+        currJoint.Tracked = (row[ankleLeft+4]);
         currFrameJoints.push_back(currJoint) ;
 //        Joint currJoint ;
-        currJoint.pos.x = stof(row[footRight + 1]) ;
-        currJoint.pos.y = stof(row[footRight + 2]) ;
-        currJoint.pos.z = stof(row[footRight + 3]) ;
+        currJoint.pos.x = stof(row[ankleRight + 1]) ;
+        currJoint.pos.y = stof(row[ankleRight + 2]) ;
+        currJoint.pos.z = stof(row[ankleRight + 3]) ;
+        currJoint.Tracked = (row[ankleRight+4]);
         currFrameJoints.push_back(currJoint) ;
 
         jointLocations.push_back(currFrameJoints) ;

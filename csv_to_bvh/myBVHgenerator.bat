@@ -1,1 +1,2 @@
-bash ../main/generateBVH.sh "../processedCSV/processed_csv.txt" "../../bvhFiles"
+cd main
+bash generateBVH.sh "../processed_csv.txt" "../../bvhFiles"

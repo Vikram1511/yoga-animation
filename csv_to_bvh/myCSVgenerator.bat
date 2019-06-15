@@ -1,2 +1,1 @@
-cd ../main
-bash generateCSV.sh "../rawCSV/raw_csv.txt" "../processedCSV/"
+bash main/generateCSV.sh "raw_csv.txt" "processedCSV/"

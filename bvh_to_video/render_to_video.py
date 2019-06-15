@@ -49,6 +49,14 @@ for i in range(scn):
     # scene = bpy.context.screen.scenes
     # screen = bpy.context.screen
     bpy.ops.object.camera_add()
+    # bpy.ops.mesh.primitive_plane_add()
+
+    # planeMeshList = []
+    # for plane in bpy.data.meshes.keys():
+    #     if plane[:5]=="Plane":
+    #         planeMeshList.append(plane)
+    # currPlane = planeMeshList[len(planeMeshList)-1]
+
     bpy.ops.object.lamp_add(type='HEMI')
     bpy.ops.import_scene.makehuman_mhx2(filepath = MHX2List[i],useOverride = True,rigType = "MHX")
     # for fk to ik switching of leg bones
@@ -66,23 +74,23 @@ for i in range(scn):
     bpy.data.scenes[i].objects[bpy.data.lamps[i].name].location = Vector((-1.6768434047698975, -5.329115867614746, 38.93578338623047))
     bpy.data.scenes[i].objects[bpy.data.lamps[i].name].rotation_euler = Euler((0.032153837382793427, 0.0016589768929407, 4.444016933441162), 'XYZ')
     
-    bpy.data.scenes[i].render.engine="CYCLES"
-    bpy.data.scenes[i].cycles.device="GPU"
+    # bpy.data.scenes[i].render.engine="CYCLES"
+    # bpy.data.scenes[i].cycles.device="GPU"
 
-    prefs = bpy.context.user_preferences
-    cprefs = prefs.addons['cycles'].preferences
+    # prefs = bpy.context.user_preferences
+    # cprefs = prefs.addons['cycles'].preferences
 
-    # Attempt to set GPU device types if available
-    for compute_device_type in ('CUDA', 'OPENCL', 'NONE'):
-        try:
-            cprefs.compute_device_type = compute_device_type
-            break
-        except TypeError:
-            pass
+    # # Attempt to set GPU device types if available
+    # for compute_device_type in ('CUDA', 'OPENCL', 'NONE'):
+    #     try:
+    #         cprefs.compute_device_type = compute_device_type
+    #         break
+    #     except TypeError:
+    #         pass
 
-    # Enable all CPU and GPU devices
-    for device in cprefs.devices:
-            device.use = True
+    # # Enable all CPU and GPU devices
+    # for device in cprefs.devices:
+    #         device.use = True
             
     for j in range(len(BVHList)):
         file_bvh = BVHList[j]
@@ -98,11 +106,11 @@ for i in range(scn):
         #bpy.data.scenes[i].McpFkIkArms=False
         #bpy.ops.mcp.transfer_to_ik()
         bpy.ops.mcp.simplify_fcurves()
-        bpy.ops.graph.simplify(error=0.10)
+        bpy.ops.graph.simplify(error=0.05)
         bpy.data.scenes[i].frame_start = 1
         bpy.data.scenes[i].frame_end = frame_end
         bpy.data.scenes[i].frame_step = 1
-        bpy.data.scenes[i].render.fps=60
+        bpy.data.scenes[i].render.fps=15
         bpy.data.scenes[i].render.image_settings.file_format = 'FFMPEG'
         bpy.data.scenes[i].render.filepath = OutputDirPath+MHX2List[i][len(mhx2path):len(MHX2List[i])-5]+"/"+BVHList[j][len(bvhpath):len(BVHList[j])-4]
         bpy.context.scene.render.use_overwrite = False
