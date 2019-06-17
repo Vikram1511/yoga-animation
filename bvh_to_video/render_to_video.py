@@ -22,10 +22,10 @@ def getFiles(folderpath,extension):
 # filep2 = "/Users/daddysHome/Downloads/tpose_sample.mhx2"
 
 # filebvh1 = "/Users/daddysHome/Downloads/kinect2bvh 2/Subj002_Katichakrasana_joints_processed.bvh"
-mhx2path = "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/characters"
-bvhpath = "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/bvhFiles"
-backgroundpath ="C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/BackgroundImages"
-OutputDirPath = "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/Animation/"
+mhx2path = "C:/Users/Vikram Jain/Documents/Github/yoga-pose-estimation/characters"
+bvhpath = "C:/Users/Vikram Jain/Documents/Github/yoga-pose-estimation/bvhFiles"
+backgroundpath ="C:/Users/Vikram Jain/Documents/Github/yoga-pose-estimation/BackgroundImages"
+OutputDirPath = "C:/Users/Vikram Jain/Documents/Github/yoga-pose-estimation/Animation/"
 
 MHX2List = getFiles(mhx2path,".mhx2")
 BVHList = getFiles(bvhpath,".bvh")
@@ -37,9 +37,10 @@ a.spaces[0].show_background_images=True
 img = bpy.data.images.load(backgroundImages[0])
 scn = len(MHX2List)
 texture = bpy.data.textures.new("Texture.001","IMAGE")
-bpy.data.worlds['World'].active_texture = texture
-bpy.context.scene.world.texture_slots[0].use_map_horizon=True
-bpy.data.worlds[0].use_sky_paper = True
+Material = bpy.data.materials.new("MyMaterial")
+#bpy.data.worlds['World'].active_texture = texture
+#bpy.context.scene.world.texture_slots[0].use_map_horizon=True
+#bpy.data.worlds[0].use_sky_paper = True
 rootlen = len(mhx2path)
 
 
@@ -49,15 +50,17 @@ for i in range(scn):
     # scene = bpy.context.screen.scenes
     # screen = bpy.context.screen
     bpy.ops.object.camera_add()
-    # bpy.ops.mesh.primitive_plane_add()
+    bpy.ops.mesh.primitive_plane_add()
+    bpy.ops.mesh.primitive_plane_add(rotation=(1.57,0,0))
 
-    # planeMeshList = []
-    # for plane in bpy.data.meshes.keys():
-    #     if plane[:5]=="Plane":
-    #         planeMeshList.append(plane)
-    # currPlane = planeMeshList[len(planeMeshList)-1]
+    planeMeshList = []
+    for plane in bpy.data.meshes.keys():
+         if plane[:5]=="Plane":
+             planeMeshList.append(plane)
+    currPlane = planeMeshList[len(planeMeshList)-2]
+    currWallPlane = planeMeshList[len(planeMeshList)-1]
 
-    bpy.ops.object.lamp_add(type='HEMI')
+    bpy.ops.object.lamp_add(type="HEMI")
     bpy.ops.import_scene.makehuman_mhx2(filepath = MHX2List[i],useOverride = True,rigType = "MHX")
     # for fk to ik switching of leg bones
 
@@ -68,12 +71,21 @@ for i in range(scn):
     person_name = MHX2List[i][rootlen+1:-5].capitalize()
     person = bpy.data.scenes[i].objects[2].name
     bpy.context.scene.camera = bpy.data.objects[bpy.data.cameras[i].name]
-    bpy.data.scenes[i].objects[bpy.data.cameras[i].name].location = Vector((0, -5, 0))
+    bpy.data.scenes[i].objects[bpy.data.cameras[i].name].location = Vector((0, -3, 0))
     bpy.data.scenes[i].objects[bpy.data.cameras[i].name].rotation_euler = Euler((1.57, 0, 6.28), 'XYZ')
     bpy.data.scenes[i].objects[bpy.data.cameras[i].name].scale = Vector((0.5, 0.5, 0.5))
-    bpy.data.scenes[i].objects[bpy.data.lamps[i].name].location = Vector((-1.6768434047698975, -5.329115867614746, 38.93578338623047))
-    bpy.data.scenes[i].objects[bpy.data.lamps[i].name].rotation_euler = Euler((0.032153837382793427, 0.0016589768929407, 4.444016933441162), 'XYZ')
-    
+    bpy.data.scenes[i].objects[bpy.data.lamps[i].name].location = Vector((0.17385, 2.70460, 1.41230))
+    bpy.data.scenes[i].objects[bpy.data.lamps[i].name].rotation_euler = Euler((0.032093837382793427, 0.0016589768929407, 4.444016933441162), 'XYZ')
+    bpy.data.scenes[i].objects[currPlane].scale[0] = 10
+    bpy.data.scenes[i].objects[currPlane].scale[1] = 10
+    bpy.data.scenes[i].objects[currWallPlane].scale[0] = 10
+    bpy.data.scenes[i].objects[currWallPlane].scale[1] = 10
+    bpy.data.scenes[i].objects[currPlane].location = Vector((-3.34690,2.45708,-1.281453))
+    bpy.data.scenes[i].objects[currWallPlane].location = Vector((-0.31573,5.26044,0.98139))
+    bpy.data.scenes[i].objects[currPlane].active_material = Material
+    bpy.data.scenes[i].objects[currPlane].active_material.diffuse_color =(0.155,0.373,0.400)
+    # bpy.data.scenes[i].objects[currPlane].color[1] = 0.274
+    # bpy.data.scenes[i].objects[currPlane].color[3] = 0.246
     # bpy.data.scenes[i].render.engine="CYCLES"
     # bpy.data.scenes[i].cycles.device="GPU"
 
@@ -97,7 +109,7 @@ for i in range(scn):
         arr = file_bvh.split(".")
         arr = arr[0].split("_")
         frame_end = int(arr[len(arr)-1])
-        bpy.data.scenes[i].McpEndFrame = frame_end
+        bpy.data.scenes[i].McpEndFrame = 100
         bpy.ops.mcp.load_and_retarget(filter_glob = ".bvh",filepath = file_bvh)
         frame_range = bpy.data.objects[person_name].animation_data.action.frame_range[1]
         #for simplyfying f curves 
@@ -108,17 +120,14 @@ for i in range(scn):
         bpy.ops.mcp.simplify_fcurves()
         bpy.ops.graph.simplify(error=0.05)
         bpy.data.scenes[i].frame_start = 1
-        bpy.data.scenes[i].frame_end = frame_end
+        bpy.data.scenes[i].frame_end = 100
         bpy.data.scenes[i].frame_step = 1
         bpy.data.scenes[i].render.fps=15
         bpy.data.scenes[i].render.image_settings.file_format = 'FFMPEG'
         bpy.data.scenes[i].render.filepath = OutputDirPath+MHX2List[i][len(mhx2path):len(MHX2List[i])-5]+"/"+BVHList[j][len(bvhpath):len(BVHList[j])-4]
         bpy.context.scene.render.use_overwrite = False
-        
-        
-    
         bpy.ops.render.render(animation=True)
         
 
-        bpy.ops.scene.new(type="NEW")
+    bpy.ops.scene.new(type="NEW")
         # bpy.context.scene=bpy.data.scenes[i+1]
