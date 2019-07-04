@@ -1,0 +1,1 @@
+"C:\Program Files\Blender Foundation\Blender\blender" -b -P "C:/Users/Vikram Jain/Documents/Remote_Access_Cerebrum/yoga-animation/render.py" --  --bvhFile bvhFiles\Subj001_Ardhachakrasana_C1N_joints_processed_2188.0.bvh --mhx2File characters\John.mhx2 --fps 15 --videoFormat FFMPEG --Point_tracking True

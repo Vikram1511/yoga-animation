@@ -244,7 +244,7 @@
 //
 //}
 //
-//int main( int argc, char *	*argv )
+//int main( int argc, char *    *argv )
 //{
 //    string filename = "output.csv" ;
 //    vector<vector<Joint>>  jointCoordinates = readJointsFromCSV(filename) ;
