@@ -21,12 +21,3 @@ do
         fi
     done
 done
-
-# for subj in ${subjs} ; do
-#   asans=`(cd ${baseDir}/${subj}/; echo *asan*)`
-
-#   for asan in $asans ; do
-#     base=${baseDir}/${subj}/${asan} 
-#     echo "python demo_video.py --input ${base}/color.avi --depth ${base}/depth_files/ --joints ${base}/joints.csv --output ${outdir}/${subj}_${asan}.csv"
-#   done
-# done
