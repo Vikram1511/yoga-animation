@@ -14,7 +14,7 @@ do
             "C:\Program Files\Blender Foundation\Blender\blender" -b -P "${mainDir}"/render.py --  --bvhFile "${bvh}" --mhx2File "${mhx2}" $1 $2 $3 $4 $5 $6
         elif [ "$#" -eq 8 ]
         then
-            "C:\Program Files\Blender Foundation\Blender\blender" -b -P "${mainDir}"/render.py --  --bvhFile "${bvh}" --mhx2File "${mhx2}" $1 $2 $3 $4 $5 $6 $7 $8 $9 ${10}
+            "C:\Program Files\Blender Foundation\Blender\blender" -b -P "${mainDir}"/render.py --  --bvhFile "${bvh}" --mhx2File "${mhx2}" $1 $2 $3 $4 $5 $6 $7 $8
         else
             echo "Provide Arguments are not proper"
             exit 2
