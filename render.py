@@ -11,6 +11,8 @@ from bpy_extras.object_utils import world_to_camera_view
 
 script_path = os.path.dirname(os.path.realpath(__file__))
 print(script_path)
+
+#class for parsing argument for blender python script
 class ArgumentParserForBlender(argparse.ArgumentParser):
     def _get_argv_after_doubledash(self):
         try:
@@ -81,20 +83,23 @@ def getFiles(folderpath,extension):
 
 
 def render_to_video(Animation=True,point_tracking=False):
+    #path for the file
     main_path = script_path
-    print(main_path)
+
+    #intitating inputs
     mhx2path = os.path.join(main_path,mhx2File)
     bvhpath = os.path.join(main_path,bvhFile)
-    backgroundpath =main_path+"\BackgroundImages"
-    OutputDirPath = main_path+"\\Animation\\"
+    #backgroundpath =main_path+"/BackgroundImages"
 
-    # MHX2List = getFiles(mhx2path,".mhx2")
-    # BVHList = getFiles(bvhpath,".bvh")
-    #backgroundImages = getFiles(backgroundpath,".jpg")
+    #output directory
+    OutputDirPath = main_path+"\\Animation\\"
+    
+    #for background image of aimation
     for a in bpy.context.screen.areas:
             if a.type == "VIEW_3D":
                 break
     a.spaces[0].show_background_images=True
+
     #img = bpy.data.images.load(backgroundImages[0])
     texture = bpy.data.textures.new("Texture.001","IMAGE")
     Material = bpy.data.materials.new("MyMaterial")
@@ -103,12 +108,17 @@ def render_to_video(Animation=True,point_tracking=False):
     #bpy.data.worlds[0].use_sky_paper = True
     rootlen = len(mhx2path)
 
+
     curr_scn = bpy.context.scene
     bpy.context.scene.world = bpy.data.worlds[0]
     #texture.image=img
     # scene = bpy.context.screen.scenes
     # screen = bpy.context.screen
+
+    #adding canera for current scene
     bpy.ops.object.camera_add()
+
+    #adding plane for floor and background
     bpy.ops.mesh.primitive_plane_add()
     bpy.ops.mesh.primitive_plane_add(rotation=(1.57,0,0))
 
@@ -119,31 +129,58 @@ def render_to_video(Animation=True,point_tracking=False):
     currPlane = planeMeshList[len(planeMeshList)-2]
     currWallPlane = planeMeshList[len(planeMeshList)-1]
 
-    bpy.ops.object.lamp_add(type="HEMI")
-    bpy.ops.import_scene.makehuman_mhx2(filepath = mhx2path,useOverride = True,rigType = "MHX")
-    # for fk to ik switching of leg bones
 
+    #adding a lamp(light source)
+    bpy.ops.object.lamp_add(type="HEMI")
+
+    #importing makehuman model
+    bpy.ops.import_scene.makehuman_mhx2(filepath = mhx2path,useOverride = True,rigType = "MHX")
+
+
+    # for fk to ik switching of leg bones
     #bpy.ops.mhx2.toggle_fk_ik(toggle="MhaLegIk_L 1 4 5")
     #bpy.ops.mhx2.toggle_fk_ik(toggle="MhaLegIk_R 1 20 21")
     ## bpy.ops.mhx2.toggle_fk_ik(toggle="MhaArmIk_L 1 2 3")   - arm is not necessary
     ## bpy.ops.mhx2.toggle_fk_ik(toggle="MhaArmIk_R 1 18 19")  - arm is not necessary
+
+    #obtaining character model name (for ex. if file name is john.mhx2 it will give 'John' which is actually pointer to the model in blender)
     person_name = mhx2path.split("/")[-1]
     person_name = person_name[:-5].capitalize()
-    person = bpy.data.scenes[0].objects[2].name
-    bpy.context.scene.camera = bpy.data.objects[bpy.data.cameras[0].name]
-    bpy.data.scenes[0].objects[bpy.data.cameras[0].name].location = Vector((0, -3, 0))
-    bpy.data.scenes[0].objects[bpy.data.cameras[0].name].rotation_euler = Euler((1.57, 0, 6.28), 'XYZ')
-    bpy.data.scenes[0].objects[bpy.data.cameras[0].name].scale = Vector((0.5, 0.5, 0.5))
-    bpy.data.scenes[0].objects[bpy.data.lamps[0].name].location = Vector((0.17385, 2.70460, 1.41230))
-    bpy.data.scenes[0].objects[bpy.data.lamps[0].name].rotation_euler = Euler((0.032093837382793427, 0.0016589768929407, 4.444016933441162), 'XYZ')
-    bpy.data.scenes[0].objects[currPlane].scale[0] = 10
-    bpy.data.scenes[0].objects[currPlane].scale[1] = 10
-    bpy.data.scenes[0].objects[currWallPlane].scale[0] = 10
-    bpy.data.scenes[0].objects[currWallPlane].scale[1] = 10
-    bpy.data.scenes[0].objects[currPlane].location = Vector((-3.34690,2.45708,-1.281453))
-    bpy.data.scenes[0].objects[currWallPlane].location = Vector((-0.31573,5.26044,0.98139))
-    bpy.data.scenes[0].objects[currPlane].active_material = Material
-    bpy.data.scenes[0].objects[currPlane].active_material.diffuse_color =(0.155,0.373,0.400)
+
+    #setting up current camera and lamp for current scene
+    curr_camera_name = bpy.data.cameras[0].name
+    curr_lamp_name = bpy.data.lamps[0].name
+    curr_lamp = bpy.data.scenes[0].objects[bpy.data.lamps[0].name]
+    curr_camera = bpy.data.scenes[0].objects[curr_camera_name]
+    bpy.context.scene.camera = curr_camera
+
+    #setting location and rotation for camera and lamp objects
+    curr_camera.location = Vector((0, -3, 0))
+    curr_camera.rotation_euler = Euler((1.57, 0, 6.28), 'XYZ')
+    curr_camera.scale = Vector((0.5, 0.5, 0.5))
+    curr_lamp.location = Vector((0.17385, 2.70460, 1.41230))
+    curr_lamp.rotation_euler = Euler((0.032093837382793427, 0.0016589768929407, 4.444016933441162), 'XYZ')
+
+
+    #setting up floor and wall plane
+    curr_floor_level = bpy.data.scenes[0].objects[currPlane]
+    curr_wall_level = bpy.data.scenes[0].objects[currWallPlane]
+
+    #for floor level
+    curr_floor_level.scale[0] = 10
+    curr_floor_level.scale[1] = 10
+    curr_floor_level.location = Vector((-3.34690,2.45708,-1.281453))
+
+    #for background wall plane 
+    curr_wall_level.scale[0] = 10
+    curr_wall_level.scale[1] = 10
+    curr_wall_level.location = Vector((-0.31573,5.26044,0.98139))
+
+    #texture for floor
+    curr_floor_level.active_material = Material
+    curr_floor_level.active_material.diffuse_color =(0.155,0.373,0.400)
+
+
     # bpy.data.scenes[i].objects[currPlane].color[1] = 0.274
     # bpy.data.scenes[i].objects[currPlane].color[3] = 0.246
     # bpy.data.scenes[i].render.engine="CYCLES"
@@ -165,38 +202,64 @@ def render_to_video(Animation=True,point_tracking=False):
     #         device.use = True
             
     
+    #for obtaining bvh file frames count
     file_bvh = bvhpath
     bvhFileName = file_bvh.split("/")[-1][:-4]
-    print(bvhFileName)
     arr = file_bvh.split("\\")
     arr = arr[-1].split("_")
     arr = arr[-1].split(".")
-    frame_end = int(arr[0])
-    bpy.data.scenes[0].McpEndFrame = 5
-    bpy.ops.mcp.load_and_retarget(filter_glob = ".bvh",filepath = file_bvh)
-    frame_range = bpy.data.objects[person_name].animation_data.action.frame_range[1]
-    #for simplyfying f curves 
 
+    #frame end is total number of frames present in bvh file
+    frame_end = int(arr[0])
+
+    #To set how many frame do we wanna retarget for the armature out of frame_end 
+    bpy.data.scenes[0].McpEndFrame = 5
+
+    #importing bvh file
+    bpy.ops.mcp.load_and_retarget(filter_glob = ".bvh",filepath = file_bvh)
+
+    #frame_range is equal to McpEndFrame(which we fixed before)
+    frame_range = bpy.data.objects[person_name].animation_data.action.frame_range[1]
+
+    #for simplyfying f curves 
     #bpy.data.scenes[i].McpShowIK=True
     #bpy.data.scenes[i].McpFkIkArms=False
     #bpy.ops.mcp.transfer_to_ik()
     bpy.ops.mcp.simplify_fcurves()
     bpy.ops.graph.simplify(error=0.05)
+
+    #to set start and end frame of animation rendering
     bpy.data.scenes[0].frame_start = 1
     bpy.data.scenes[0].frame_end = 1
+
+    #render_frames is a pointer to end frame  for rendering
     render_frames = bpy.data.scenes[0].frame_end
-    tracking_frames = render_frames
     bpy.data.scenes[0].frame_step = 1
+
+    #tracking_frames is number of frames for which we want to track coordinates of vertices of mhx2 model
+    tracking_frames = render_frames
+
+    #if animation what we need
     if(Animation==True):
+        #input for frame per second
         bpy.data.scenes[0].render.fps=args.fps
+
+        #input for video format file
         bpy.data.scenes[0].render.image_settings.file_format = args.videoFormat
+
+        #filepath for output video
         bpy.data.scenes[0].render.filepath = OutputDirPath+person_name+"\\"+bvhFileName
         bpy.context.scene.render.use_overwrite = False
+
+        #rendering
         bpy.ops.render.render(animation=True)
         print("Animated...")
+
+    #if point tracking what we need
     if(point_tracking==True):
             print("point tracking started")
             for f in range(0,tracking_frames):
+                    #updating frame number for tracking coordinates of vertices in image space
                     bpy.context.scene.frame_set(f)
                     pointTracking(curr_scn,person_name+":Body",bpy.data.cameras[0].name,f)
     
