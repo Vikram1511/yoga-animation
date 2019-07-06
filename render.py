@@ -89,8 +89,8 @@ def render_to_video(Animation=True,point_tracking=False):
     #intitating inputs
     mhx2path = os.path.join(main_path,mhx2File)
     bvhpath = os.path.join(main_path,bvhFile)
-    #backgroundpath =main_path+"/BackgroundImages"
-
+    backgroundpath =main_path+"/BackgroundImages"
+    backgroundImages = getFiles(backgroundpath,".jpg")
     #output directory
     OutputDirPath = main_path+"\\Animation\\"
     
@@ -100,18 +100,18 @@ def render_to_video(Animation=True,point_tracking=False):
                 break
     a.spaces[0].show_background_images=True
 
-    #img = bpy.data.images.load(backgroundImages[0])
+    img = bpy.data.images.load(backgroundImages[0])
     texture = bpy.data.textures.new("Texture.001","IMAGE")
-    Material = bpy.data.materials.new("MyMaterial")
-    #bpy.data.worlds['World'].active_texture = texture
-    #bpy.context.scene.world.texture_slots[0].use_map_horizon=True
-    #bpy.data.worlds[0].use_sky_paper = True
+    #Material = bpy.data.materials.new("MyMaterial")
+    bpy.data.worlds['World'].active_texture = texture
+    bpy.context.scene.world.texture_slots[0].use_map_horizon=True
+    bpy.data.worlds[0].use_sky_paper = True
     rootlen = len(mhx2path)
 
 
     curr_scn = bpy.context.scene
     bpy.context.scene.world = bpy.data.worlds[0]
-    #texture.image=img
+    texture.image=img
     # scene = bpy.context.screen.scenes
     # screen = bpy.context.screen
 
@@ -119,15 +119,15 @@ def render_to_video(Animation=True,point_tracking=False):
     bpy.ops.object.camera_add()
 
     #adding plane for floor and background
-    bpy.ops.mesh.primitive_plane_add()
-    bpy.ops.mesh.primitive_plane_add(rotation=(1.57,0,0))
+    #bpy.ops.mesh.primitive_plane_add()
+    #bpy.ops.mesh.primitive_plane_add(rotation=(1.57,0,0))
 
-    planeMeshList = []
-    for plane in bpy.data.meshes.keys():
-        if plane[:5]=="Plane":
-            planeMeshList.append(plane)
-    currPlane = planeMeshList[len(planeMeshList)-2]
-    currWallPlane = planeMeshList[len(planeMeshList)-1]
+    # planeMeshList = []
+    # for plane in bpy.data.meshes.keys():
+    #     if plane[:5]=="Plane":
+    #         planeMeshList.append(plane)
+    # currPlane = planeMeshList[len(planeMeshList)-2]
+    # currWallPlane = planeMeshList[len(planeMeshList)-1]
 
 
     #adding a lamp(light source)
@@ -163,22 +163,22 @@ def render_to_video(Animation=True,point_tracking=False):
 
 
     #setting up floor and wall plane
-    curr_floor_level = bpy.data.scenes[0].objects[currPlane]
-    curr_wall_level = bpy.data.scenes[0].objects[currWallPlane]
+    # curr_floor_level = bpy.data.scenes[0].objects[currPlane]
+    # curr_wall_level = bpy.data.scenes[0].objects[currWallPlane]
 
-    #for floor level
-    curr_floor_level.scale[0] = 10
-    curr_floor_level.scale[1] = 10
-    curr_floor_level.location = Vector((-3.34690,2.45708,-1.281453))
+    # #for floor level
+    # curr_floor_level.scale[0] = 10
+    # curr_floor_level.scale[1] = 10
+    # curr_floor_level.location = Vector((-3.34690,2.45708,-1.281453))
 
-    #for background wall plane 
-    curr_wall_level.scale[0] = 10
-    curr_wall_level.scale[1] = 10
-    curr_wall_level.location = Vector((-0.31573,5.26044,0.98139))
+    # #for background wall plane 
+    # curr_wall_level.scale[0] = 10
+    # curr_wall_level.scale[1] = 10
+    # curr_wall_level.location = Vector((-0.31573,5.26044,0.98139))
 
-    #texture for floor
-    curr_floor_level.active_material = Material
-    curr_floor_level.active_material.diffuse_color =(0.155,0.373,0.400)
+    # #texture for floor
+    # curr_floor_level.active_material = Material
+    # curr_floor_level.active_material.diffuse_color =(0.155,0.373,0.400)
 
 
     # bpy.data.scenes[i].objects[currPlane].color[1] = 0.274
@@ -213,7 +213,10 @@ def render_to_video(Animation=True,point_tracking=False):
     frame_end = int(arr[0])
 
     #To set how many frame do we wanna retarget for the armature out of frame_end 
-    bpy.data.scenes[0].McpEndFrame = 5
+    if(EndFrame):
+        bpy.data.scenes[0].McpEndFrame = EndFrame
+    else:
+        bpy.data.scenes[0].McpEndFrame = frame_end
 
     #importing bvh file
     bpy.ops.mcp.load_and_retarget(filter_glob = ".bvh",filepath = file_bvh)
@@ -230,7 +233,7 @@ def render_to_video(Animation=True,point_tracking=False):
 
     #to set start and end frame of animation rendering
     bpy.data.scenes[0].frame_start = 1
-    bpy.data.scenes[0].frame_end = 1
+    bpy.data.scenes[0].frame_end = 500
 
     #render_frames is a pointer to end frame  for rendering
     render_frames = bpy.data.scenes[0].frame_end
@@ -269,15 +272,17 @@ if __name__ == "__main__":
     parser.add_argument('--bvhFile',type=str,help='provide bvh file path',required=True)
     parser.add_argument('--mhx2File',type=str,help='provide mhx2 model file path',required=True)
     parser.add_argument('--fps',default=15,type=int,help='Please provide frame rate for Animation(default=15)',required=True)
+    parser.add_argument('--FramesToRetarget',type=int,help="How many frames do you wanna retarget(default=All the frames present in bvh file)")
     parser.add_argument('--videoFormat',default='FFMPEG',help='video format in which animation will be generated(default=FFMPEG)',choices=['FFMPEG','MP4'],required=True)
     parser.add_argument('--Animation',default=False,type=lambda x: (str(x).lower() == 'true'),help='True if you want to get animation video(default False)')
     parser.add_argument('--Point_tracking',default=False,type=lambda x: (str(x).lower() == 'true'),help='True if you want to get point tracking of vertices(default=False)')
 
     args = parser.parse_args()
-    fps = args.fps
-    videoFormat =args.videoFormat
     bvhFile = args.bvhFile
     mhx2File =args.mhx2File
+    fps = args.fps
+    EndFrame = args.FramesToRetarget
+    videoFormat =args.videoFormat
     bool_animation = args.Animation
     bool_pointtracking = args.Point_tracking
     print(bool_animation)
