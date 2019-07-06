@@ -1,4 +1,5 @@
 #!/bin/bash
+export mainDir="$(dirname "$(readlink -f "$0")")"
 if [ $# > 2 ]; then
-    ./a.exe "$1" "$2"
+    "$mainDir"/a.exe "$1" "$2"
 fi

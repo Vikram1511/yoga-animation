@@ -1,1 +1,0 @@
-bash main/generateCSV.sh "raw_csv.txt" "processedCSV/"
