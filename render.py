@@ -233,7 +233,7 @@ def render_to_video(Animation=True,point_tracking=False):
 
     #to set start and end frame of animation rendering
     bpy.data.scenes[0].frame_start = 1
-    bpy.data.scenes[0].frame_end = 500
+    bpy.data.scenes[0].frame_end = bpy.data.scenes[0].McpEndFrame
 
     #render_frames is a pointer to end frame  for rendering
     render_frames = bpy.data.scenes[0].frame_end
