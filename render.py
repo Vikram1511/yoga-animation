@@ -2,12 +2,38 @@ import bpy
 import bpy_extras
 import os
 import csv
+import copy
 from math import *
 import sys
 from mathutils import *
 import random
 import argparse
 from bpy_extras.object_utils import world_to_camera_view
+
+mapping = {"head"      :         ["DEF-head"],
+            "hips"     :         ["DEF-hips"],
+            "spine":             ["DEF-spine","DEF-spine-1"],
+            "chest":               ["DEF-chest","DEF-chest-1"],
+            "neck":                 ["DEF-neck","DEF-jaw","DEF-neck-1"],
+            "left-upperArm":        ["DEF-upper_arm.L"],
+            "right-upperArm":       ["DEF-upper_arm.R"],
+            "breast":               ["DEF-breast.L","DEF-breast.R"],
+            "left-thigh":           ["DEF-thigh.L"],
+            "left-foot":            ["DEF-foot.L"],
+            "left-toe":             ["DEF-toe.L"],
+            "right-thigh":          ["DEF-thigh.R"],
+            "right-foot":           ["DEF-foot.R"],
+            "right-toe":            ["DEF-toe.R"],
+            "hand-left":            ["DEF-hand.L"],
+            "hand-right":           ["DEF-hand.R"],
+            "forearm-left":         ["DEF-forearm.01.L","DEF-forearm.02.L","DEF-forearm.03.L"],
+            "forearm-right":        ["DEF-forearm.01.R","DEF-forearm.02.R","DEF-forearm.03.R"],
+            "lower-leg-left":       ["DEF-shin.01.L","DEF-shin.02.L","DEF-shin.03.L"],
+            "lower-leg-right":      ["DEF-shin.01.R","DEF-shin.02.R","DEF-shin.03.R"],
+            "left-palm":            ["DEF-palm_index.L","DEF-palm_middle.L"],
+            "right-palm":           ["DEF-palm_index.R","DEF-palm_middle.R"]
+
+}
 
 
 script_path = os.path.dirname(os.path.realpath(__file__))
@@ -46,45 +72,62 @@ def pointTracking(scene,person_body,scene_camera_name,frame_number):
 
         for modifiers in obj.modifiers:
             if modifiers.name != "ARMATURE":
-                modifiers.show_viewport = False
+                modifiers.show_render = False
             
-
         me = obj.to_mesh(scene, True,'RENDER')
         me.transform(obj.matrix_world)
+
+        camera_as_reference = Vector((0,3,0))
+
         #print(total_vg)
         #print("inserting")
         tracking_data=[]
-        for j in range(total_vg):
-                track_data_per_frame = []
-                vg_index= j
-                vs = [v for v in me.vertices if (vg_index in [vg.group for vg in v.groups])]
-                #print(vs)
-                vertc = (vert.co for vert in vs[:2])
-                #print(vertc)
-                coords_2d = [world_to_camera_view(scene, cam, coord) for coord in vertc]
-                #print(coords_2d)
-                # 2d data printout:
-                rnd = lambda i: round(i)
-                rnd3 = lambda i: round(i, 3)
+        tracking_3D = []
+        for key,value in mapping.items():
+            for group in value:
+                    track_data_per_frame = []
+                    track_3D_data_per_frame = []
+                    vg_index= obj.vertex_groups[group].index
+                    vs = [v for v in me.vertices if (vg_index in [vg.group for vg in v.groups])]
+                    #print(vs)
+                    vertc = (vert.co for vert in vs)
+                    coords_2d = [(coord + camera_as_reference ,   world_to_camera_view(scene, cam, coord)) for coord in vertc]
 
-                #limit_finder = lambda f: f(coords_2d, key=lambda i: i[2])[2]
-                #limits = limit_finder(min), limit_finder(max)
-                #limits = [rnd3(d) for d in limits]
+                    #print(vertc)
+                    #print(coords_2d)
+                    # 2d data printout:
+                    rnd = lambda i: round(i)
+                    rnd3 = lambda i: round(i, 3)
+                    rnd5 = lambda i: round(i, 5)
 
-                # x, y, d=distance_to_lens
-                track_data_per_frame.append(frame_number)
-                track_data_per_frame.append(obj.vertex_groups.items()[j][0])
+                    #limit_finder = lambda f: f(coords_2d, key=lambda i: i[2])[2]
+                    #limits = limit_finder(min), limit_finder(max)
+                    #limits = [rnd3(d) for d in limits]
+                    track_3D_data_per_frame.append(frame_number)
+                    track_3D_data_per_frame.append(key)
+                    # x, y, d=distance_to_lens
+                    track_data_per_frame.append(frame_number)
+                    track_data_per_frame.append(key)
 
-                print("Vertex_group for:",obj.vertex_groups.items()[j][0])
+                    #print("Vertex_group for:",key)
+                    for c in range(len(coords_2d)):
+                        track_data_per_frame.append((rnd(res_x*coords_2d[c][1][0]), rnd(res_y*coords_2d[c][1][1]), rnd3(coords_2d[c][1][2])))
+                        track_3D_data_per_frame.append((rnd5(coords_2d[c][0][0]), rnd5(coords_2d[c][0][2]), rnd5(coords_2d[c][0][1])))
+                  #  print(track_data_per_frame)
+            
+            tracking_data.append(track_data_per_frame)
+            tracking_3D.append(track_3D_data_per_frame)
 
-                outputfile = "point_tracking_"+bvhName+"_"+mhx2Name+".csv"
-                for x, y, d in coords_2d:
-                    track_data_per_frame.append((rnd(res_x*x), rnd(res_y*y), rnd3(d)))
-                    #print("{},{},{}".format(rnd(res_x*x), rnd(res_y*y), rnd3(d)))
-                tracking_data.append(track_data_per_frame)
-        with open(outputfile,"a") as f:
-            writer = csv.writer(f)
-            writer.writerows(tracking_data)
+        outputfile_pixelSpace = "point_tracking_imageSpace"+bvhName+"_"+mhx2Name+".csv"
+        outputfile_3DSpace = "point_tracking_3Dspace"+bvhName+"_"+mhx2Name+"_3Dspace"+ ".csv"
+        with open(outputfile_pixelSpace,"a") as f1:
+            writer1 = csv.writer(f1)
+            writer1.writerows(tracking_data)
+
+
+        with open(outputfile_3DSpace,"a") as f2:
+            writer2 = csv.writer(f2)
+            writer2.writerows(tracking_3D)
         bpy.data.meshes.remove(me)
 
 
