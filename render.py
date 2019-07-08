@@ -1,6 +1,7 @@
 import bpy
 import bpy_extras
 import os
+import csv
 from math import *
 import sys
 from mathutils import *
@@ -42,13 +43,24 @@ def pointTracking(scene,person_body,scene_camera_name,frame_number):
 
         # use generator expressions () or list comprehensions []
         total_vg = len(obj.vertex_groups.items())
+
+        for modifiers in obj.modifiers:
+            if modifiers.name != "ARMATURE":
+                modifiers.show_render = False
+            
+
+        me = obj.to_mesh(scene, True,'RENDER')
+        me.transform(obj.matrix_world)
         #print(total_vg)
         #print("inserting")
+        tracking_data=[]
         for j in range(total_vg):
+                track_data_per_frame = []
                 vg_index= j
-                vs = [v for v in obj.data.vertices if (vg_index in [vg.group for vg in v.groups])]
+                vs = [v for v in me.vertices if (vg_index in [vg.group for vg in v.groups])]
                 #print(vs)
-                vertc = (vert.co for vert in vs)
+                vertc = (vert.co for vert in vs[:2])
+                #print(vertc)
                 coords_2d = [world_to_camera_view(scene, cam, coord) for coord in vertc]
                 #print(coords_2d)
                 # 2d data printout:
@@ -60,10 +72,20 @@ def pointTracking(scene,person_body,scene_camera_name,frame_number):
                 #limits = [rnd3(d) for d in limits]
 
                 # x, y, d=distance_to_lens
-                print('x,y,d')
+                track_data_per_frame.append(frame_number)
+                track_data_per_frame.append(obj.vertex_groups.items()[j][0])
+
                 print("Vertex_group for:",obj.vertex_groups.items()[j][0])
+
+                outputfile = "point_tracking_"+bvhName+"_"+mhx2Name+".csv"
                 for x, y, d in coords_2d:
-                    print("{},{},{}".format(rnd(res_x*x), rnd(res_y*y), rnd3(d)))
+                    track_data_per_frame.append((rnd(res_x*x), rnd(res_y*y), rnd3(d)))
+                    #print("{},{},{}".format(rnd(res_x*x), rnd(res_y*y), rnd3(d)))
+                tracking_data.append(track_data_per_frame)
+        with open(outputfile,"a") as f:
+            writer = csv.writer(f)
+            writer.writerows(tracking_data)
+        bpy.data.meshes.remove(me)
 
 
 def getFiles(folderpath,extension):
@@ -232,7 +254,7 @@ def render_to_video(Animation=True,point_tracking=False):
     bpy.ops.graph.simplify(error=0.05)
 
     #to set start and end frame of animation rendering
-    bpy.data.scenes[0].frame_start = 1
+    bpy.data.scenes[0].frame_start = 495
     bpy.data.scenes[0].frame_end = bpy.data.scenes[0].McpEndFrame
 
     #render_frames is a pointer to end frame  for rendering
@@ -279,7 +301,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     bvhFile = args.bvhFile
+
+    bvhName = os.path.join(script_path,bvhFile).split("/")[-1][:-4]
     mhx2File =args.mhx2File
+
+    mhx2Name = os.path.join(script_path,mhx2File).split("/")[-1][:-5].capitalize()
     fps = args.fps
     EndFrame = args.FramesToRetarget
     videoFormat =args.videoFormat
