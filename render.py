@@ -46,7 +46,7 @@ def pointTracking(scene,person_body,scene_camera_name,frame_number):
 
         for modifiers in obj.modifiers:
             if modifiers.name != "ARMATURE":
-                modifiers.show_render = False
+                modifiers.show_viewport = False
             
 
         me = obj.to_mesh(scene, True,'RENDER')
@@ -254,7 +254,7 @@ def render_to_video(Animation=True,point_tracking=False):
     bpy.ops.graph.simplify(error=0.05)
 
     #to set start and end frame of animation rendering
-    bpy.data.scenes[0].frame_start = 495
+    bpy.data.scenes[0].frame_start = 1
     bpy.data.scenes[0].frame_end = bpy.data.scenes[0].McpEndFrame
 
     #render_frames is a pointer to end frame  for rendering
