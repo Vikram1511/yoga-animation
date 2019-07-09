@@ -10,12 +10,10 @@ The aim of this project is to create 3D animation using Motion Captured files an
 </table>
 
 ## **Requirements**
-- Windows10 or Linux
-- Blender v2.79
-- required plugins for blender
-    1. Makewalk
-    2. import_runtime_MHX2
+- python 3.6
+- Blender v2.79b
 - Makehuman 1.1.0
+- this code is developed on Windows10 ,can also be used on Linux
 
 ## *Getting Familiar with the Datasets*
 
@@ -54,31 +52,79 @@ The aim of this project is to create 3D animation using Motion Captured files an
 
  <img src="images/mhx2_model.png" alt="drawing" width="700"/>
 
+## Setup for Blender
+
+- before generating animation using our code, blender setup is required
+-  blender addons can be found here on this [link](http://files.jwp.se/archive/releases/1.1.0/) which includes some addons for blender        and also same makehuman version from where we created our mhx2 model
+- list of addons for blender what we used is 
+    - import_runtime_mhx2
+    - makewalk
+    - maketarget
+- after this enabling these addons is required , which can be done by accessing blender setting --> user-preferences--> addons
+- also enabling of existing addon such as **Simplify Curves** also required   
+- enable **auto_run_python_script** from blender setting --> user-preferences--> File
+
 ## **How to use**
  - Clone the repository
  - Use makehuman to create a human model and export it as a mhx2 model
- - since our code uses processed csv format to converts it into bvh file therefor code for converting kinect output csv file to processed csv format is(it is assumed that all the rawCSV files are present in *csv_to_bvh/rawCSV* directory)
-    - `$ python write_rawjointsFiles.py`  which will list out all the files present in rawCSV directroy to a text file raw_csv.txt and then run the code  `$ bash myCSVgenerator.sh` to convert rawCSV files to processed CSV files
+ - since installed blender location differ in windows and linux, therefor location of blender should be modified in **run_render.sh** and **run_render_All.sh**
+ - to generate bvh files for kinect joints data files
+    - bash script **myCSVgenerator.sh** do that job and it takes one command line argument as location of kinect output files
+    - `$ bash myCSVgenerator.sh {input folder location where kinect output file exist}`, it will convert rawCSV files to processed CSV       files which will be generated in **csv_to_bvh/processedCSV** folder
 
-    - `$ python write_processedjointsFiles.py`  which will list out all the converted processed files present in processedCSV directroy to a text file processed_csv.txt and then run the code  `$ bash myBVHgenerator.sh` to convert rawCSV files to processed CSV files
+    - `$ bash myBVHgenerator.sh` to convert processed joints output to bvh files which will be generated in **bvhFiles** folder
 
-- or directly convert all the rawCSV files to BVH files , run the code
-    - `$ bash toBVH.sh`
+    - alternatively both the processess mentioned above can be done with single line of code `$ bash toBVH.sh {command line input -         folder where kinect output file exist}`
 
-**Code to generate Animation**
-- Code can be used for generating animation video and also tracking coordinates of each vertices of mhx2 model in image space
-- Code to run for *single animation video*
-- *--FramestoRetarget* is an optional input, it represent how many frames out of present in bvh file to be retargetted, default value will be all the frames present in bvh file
+**How to Generate Animation**
+- Code can be used for generating animation video and also tracking coordinates of each vertices of makehuman mhx2 model in image space and also in 3D space of blender(camera location as reference point same as in kinect IR depth sensor locate space coordinates)
 
-    - `$ bash run_render.sh --bvhFile {your input bvh file}  --mhx2File {your input mhx2 file} --fps {input frame rate(type-int)} --FramesToRetarget {input of total number of frames you want to retarget(optional) type-int} --videoFormat {input video file format(default is FFMEPG)} --Animation True`
+- our animation code takes these command line arguments
+<table style="border-collapse: collapse;">
+    <tr>
+        <th>Command line Arguments</th>
+        <th>Remarks</th>
+    </tr>
+    <tr>
+        <td>--bvhFile</td>
+        <td>location of bvh file for which animation will be generated(string)</td>
+    </tr>
+    <tr>
+        <td>--mhx2File</td>
+        <td>location of makehuman mhx2 model file for which animation will be generated(string)</td>
+    </tr>
+    <tr>
+        <td>--fps</td>
+        <td>input for frame per second for animation(int)</td>
+    </tr>
+     <tr>
+        <td>--FramesToRetarget</td>
+        <td>(optional) input for total number of frames to 
+        be retargetted out of total frames available in bvh file 
+        for animation(int,default value is all the frames exist in bvh file)</td>
+    </tr>
+     <tr>
+        <td>--videoFormat</td>
+        <td>image format for animation video(string)</td>
+    </tr>
+     <tr>
+        <td>--Animation</td>
+        <td>True or False (boolean, True for generating animation video, default = False)</td>
+    </tr>
+     <tr>
+        <td>--Point_tracking</td>
+        <td>True or False (boolean, True for generating tracking files, default = False)</td>
+    </tr>
+</table>
 
-- Code to run for *point tracking*
+- **Single animation video for given input files**
+    - we need to feed two input files one is mocap bvh file and another is makehuman mhx2 model
+    - for generating Animation as output, boolean *--Animation* should be *True*
+    - for generating point tracking files for as output, boolean *--Point_tracking* shoul be *True*
+    - or you can generate both simultaneously by giving both of these boolean command line argument value *True*  such as
+    - `$ bash run_render.sh --bvhFile {your input bvh file}  --mhx2File {your input mhx2 file} --fps {input frame rate(type-int)}            --FramesToRetarget {input of total number of frames you want to retarget(optional) type-int} --videoFormat {input video file format(default is FFMEPG)} --Animation True --Point_tracking True`
 
-    - Just need to copy the above code and remove *--Animation True* and enter *Point_tracking True* rest format remains same, it will generate x_coordinate,y_coordinate in image pixel-space for each vertices and z_coordinate which is distance of vertex from camera object in blender
+- **Generating animation video files for all the bvh file generated in *bvhFiles* folder**
 
-    - `$ bash run_render.sh --bvhFile {your input bvh file}  --mhx2File {your input mhx2 file} --fps {input frame rate} --FramesToRetarget {input of total number of frames you want to retarget(optiona)} --videoFormat {input video file format(default is FFMEPG)} --Point_tracking True`
-
-- Get the animation for all the bvh files for each mhx2 model, run the code
-
-    - `$ bash run_render_All.sh --fps {input frame rate} --FramesToRetarget {input of total number of frames you want to retarget(optional)} --videoFormate {input video file format} --Animation True`
+   - `$ bash run_render_All.sh --fps {input frame rate} --FramesToRetarget {input of total number of frames you want to retarget(optional)} --videoFormate {input video file format} --Animation True` , can also run for the point tracking.
 
