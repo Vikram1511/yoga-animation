@@ -1,9 +1,12 @@
 import os
+scriptpath = os.path.dirname(os.path.realpath(__file__))
+path = os.path.join(scriptpath,"processedCSV/")
+path = path.replace("\\","/")
+textfile_path = os.path.join(scriptpath,"processed_csv.txt")
+pp = open(textfile_path, "w")
 
-pp = open("processed_csv.txt", "w")
-
-for r,d,f in os.walk("processedCSV/"):
+for r,d,f in os.walk(path):
     for file in f:
         if ".csv" in file:
-            pp.write("processedCSV/"+file+"\n")  
+            pp.write(path+file+"\n")  
         

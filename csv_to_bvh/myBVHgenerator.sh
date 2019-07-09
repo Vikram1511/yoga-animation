@@ -1,4 +1,5 @@
 #!/bin/bash
-export mainDir="$(dirname "$(readlink -f "$0")")"
-python "$mainDir"/write_processedjointsFiles.py
-bash "$mainDir"/main/generateBVH.sh "processed_csv.txt" "../bvhFiles"
+export input="$(dirname "$(readlink -f "$0")")"
+backdir=`(dirname "$input")`
+python "$input"/write_processedjointsFiles.py
+bash "$input"/main/generateBVH.sh "$input"/processed_csv.txt "$backdir"/bvhFiles

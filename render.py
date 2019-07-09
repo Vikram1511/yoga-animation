@@ -347,7 +347,7 @@ if __name__ == "__main__":
     parser.add_argument('--mhx2File',type=str,help='provide mhx2 model file path',required=True)
     parser.add_argument('--fps',default=15,type=int,help='Please provide frame rate for Animation(default=15)',required=True)
     parser.add_argument('--FramesToRetarget',type=int,help="How many frames do you wanna retarget(default=All the frames present in bvh file)")
-    parser.add_argument('--videoFormat',default='FFMPEG',help='video format in which animation will be generated(default=FFMPEG)',choices=['FFMPEG','MP4'],required=True)
+    parser.add_argument('--videoFormat',default='FFMPEG',help='video format in which animation will be generated(default=FFMPEG)',choices=['FFMPEG','AVI_JPEG','AVI_RAW'],required=True)
     parser.add_argument('--Animation',default=False,type=lambda x: (str(x).lower() == 'true'),help='True if you want to get animation video(default False)')
     parser.add_argument('--Point_tracking',default=False,type=lambda x: (str(x).lower() == 'true'),help='True if you want to get point tracking of vertices(default=False)')
 
