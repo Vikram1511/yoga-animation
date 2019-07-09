@@ -63,7 +63,11 @@ def pointTracking(scene,person_body,scene_camera_name,frame_number):
         render = scene.render
         res_x = render.resolution_x
         res_y = render.resolution_y
-
+        render_scale = scene.render.resolution_percentage / 100
+        render_size = (
+            int(scene.render.resolution_x * render_scale),
+            int(scene.render.resolution_y * render_scale),
+        )
         obj = bpy.data.objects[person_body]
         cam = bpy.data.objects[scene_camera_name]
 
@@ -85,6 +89,7 @@ def pointTracking(scene,person_body,scene_camera_name,frame_number):
         tracking_3D = []
         for key,value in mapping.items():
             for group in value:
+
                     track_data_per_frame = []
                     track_3D_data_per_frame = []
                     vg_index= obj.vertex_groups[group].index
@@ -111,7 +116,11 @@ def pointTracking(scene,person_body,scene_camera_name,frame_number):
 
                     #print("Vertex_group for:",key)
                     for c in range(len(coords_2d)):
-                        track_data_per_frame.append((rnd(res_x*coords_2d[c][1][0]), rnd(res_y*coords_2d[c][1][1]), rnd3(coords_2d[c][1][2])))
+                        pixel_x = rnd(res_x*coords_2d[c][1][0])
+                        pixel_y = rnd(res_y*coords_2d[c][1][1])
+                        depth_z = rnd3(coords_2d[c][1][2])
+                        
+                        track_data_per_frame.append((pixel_x, pixel_y, depth_z))
                         track_3D_data_per_frame.append((rnd5(coords_2d[c][0][0]), rnd5(coords_2d[c][0][2]), rnd5(coords_2d[c][0][1])))
                   #  print(track_data_per_frame)
             
