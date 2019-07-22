@@ -4,7 +4,7 @@ The aim of this project is to create 3D animation using Motion Captured files an
 
 <table>
     <tr>
-        <td><img src="images/demo.gif"></td>
+        <td><img src="images/demo_cmu.gif"></td>
         <td><img src="images/demo_background.gif"></td>
     </tr>
 </table>
@@ -66,6 +66,7 @@ The aim of this project is to create 3D animation using Motion Captured files an
 
 ## **How to use**
  - Clone the repository
+ - set blender as an environmental variable
  - Use makehuman to create a human model and export it as a mhx2 model
  - since installed blender location differ in windows and linux, therefor location of blender should be modified in **run_render.sh** and **run_render_All.sh**
  - to generate bvh files for kinect joints data files
@@ -87,15 +88,15 @@ The aim of this project is to create 3D animation using Motion Captured files an
     </tr>
     <tr>
         <td>--bvhFile</td>
-        <td>location of bvh file for which animation will be generated(string)</td>
+        <td>(compuslory) - location of bvh file for which animation will be generated(string)</td>
     </tr>
     <tr>
         <td>--mhx2File</td>
-        <td>location of makehuman mhx2 model file for which animation will be generated(string)</td>
+        <td>(compuslory) - location of makehuman mhx2 model file for which animation will be generated(string)</td>
     </tr>
     <tr>
         <td>--fps</td>
-        <td>input for frame per second for animation(int)</td>
+        <td>(compuslory) - input for frame per second for animation(int)</td>
     </tr>
      <tr>
         <td>--FramesToRetarget</td>
@@ -105,7 +106,11 @@ The aim of this project is to create 3D animation using Motion Captured files an
     </tr>
      <tr>
         <td>--videoFormat</td>
-        <td>image format for animation video(string)</td>
+        <td>(compuslory) -image format for animation video(string)</td>
+    </tr>
+    <tr>
+        <td>--background_image</td>
+        <td>(compuslory) - complete path for background image for animation</td>
     </tr>
      <tr>
         <td>--Animation</td>
@@ -115,16 +120,32 @@ The aim of this project is to create 3D animation using Motion Captured files an
         <td>--Point_tracking</td>
         <td>True or False (boolean, True for generating tracking files, default = False)</td>
     </tr>
+    <tr>
+        <td>--camera_location</td>
+        <td>(optional) - string format in format "(x-cord,y-cord,z-cord)", default is "(0,-3,0)" which is for our purpose</td>
+    </tr>
+    <tr>
+        <td>--camera_rotation</td>
+        <td>(optional) - string format in format "(x-rot,y-rot,z-rot) in radians", default is "(1.57,0,6.28)" which is for our purpose</td>
+    </tr>
+    <tr>
+        <td>--is_preview</td>
+        <td>(compuslory) - this variable holds boolean value, if true then visualization of the camera view for video rendering is enabled and it will automatically pop up and stops the code for further executing, it will asks for input for further executing(default=True), purpose of this parameter is to set camera location and rotation, value for this parameter should be false for execution of this code for lots of animation rendering</td>
+    </tr>
+    
 </table>
 
 - **Single animation video for given input files**
-    - we need to feed two input files one is mocap bvh file and another is makehuman mhx2 model
+    - we need to feed two input files for animation, one is mocap bvh file and another is makehuman mhx2 model
     - for generating Animation as output, boolean *--Animation* should be *True*
     - for generating point tracking files for as output, boolean *--Point_tracking* shoul be *True*
     - or you can generate both simultaneously by giving both of these boolean command line argument value *True*  such as
-    - `$ bash run_render.sh --bvhFile {your input bvh file}  --mhx2File {your input mhx2 file} --fps {input frame rate(type-int)}            --FramesToRetarget {input of total number of frames you want to retarget(optional) type-int} --videoFormat {input video file format(default is FFMEPG)} --Animation True --Point_tracking True`
+    - `$ bash run_render.sh --bvhFile {your input bvh file}  --mhx2File {your input mhx2 file} --fps {input frame rate(type-int)}            --FramesToRetarget {input of total number of frames you want to retarget(optional) type-int} --videoFormat {input video file format(default is FFMEPG)} --background_image {complete path for background image} --Animation {True or False} --Point_tracking {True or False} --camera_location {input camera location} --camera_rotation {input camera rotation} --is_preview True` 
+
+    - the code will generate a preview image and pause untill asked input is provided for the animation 
+    - this is for verifying that set camera location gives view range satisfactory for animation so that we can proceed further, it asks    for permission to continue("1") or stop("0") the code and reset camera location
 
 - **Generating animation video files for all the bvh file generated in *bvhFiles* folder**
 
-   - `$ bash run_render_All.sh --fps {input frame rate} --FramesToRetarget {input of total number of frames you want to retarget(optional)} --videoFormate {input video file format} --Animation True` , can also run for the point tracking.
+   - `$ bash run_render_All.sh --fps {input frame rate} --FramesToRetarget {input of total number of frames you want to retarget(optional)} --videoFormate {input video file format} --background_image {complete path for background image} --Animation {True or False} --Point_tracking {True or False} --camera_location {input camera location} --camera_rotation {input camera rotation} --is_preview False` , can also run for the point tracking.
 

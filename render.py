@@ -9,7 +9,10 @@ from mathutils import *
 import random
 import argparse
 from bpy_extras.object_utils import world_to_camera_view
+from ast import literal_eval as make_tuple
 
+
+#mapping for different parts of body for vertices point tracking
 mapping = {"head"      :         ["DEF-head"],
             "hips"     :         ["DEF-hips"],
             "spine":             ["DEF-spine","DEF-spine-1"],
@@ -35,9 +38,8 @@ mapping = {"head"      :         ["DEF-head"],
 
 }
 
-
+#path of script
 script_path = os.path.dirname(os.path.realpath(__file__))
-print(script_path)
 
 #class for parsing argument for blender python script
 class ArgumentParserForBlender(argparse.ArgumentParser):
@@ -53,12 +55,15 @@ class ArgumentParserForBlender(argparse.ArgumentParser):
         return super().parse_args(args=self._get_argv_after_doubledash())
 
 
+#deleting existing default objects in blender when blender starts first time 
 bpy.ops.object.select_all(action='TOGGLE')
 bpy.ops.object.select_all(action='TOGGLE')
 bpy.ops.object.delete(use_global=False)
 
 
+#function for point tracking
 def pointTracking(scene,person_body,scene_camera_name,frame_number):
+
         # needed to rescale 2d coordinates
         render = scene.render
         res_x = render.resolution_x
@@ -68,23 +73,33 @@ def pointTracking(scene,person_body,scene_camera_name,frame_number):
             int(scene.render.resolution_x * render_scale),
             int(scene.render.resolution_y * render_scale),
         )
+
+        #objects, person and camera
         obj = bpy.data.objects[person_body]
         cam = bpy.data.objects[scene_camera_name]
 
-        # use generator expressions () or list comprehensions []
+        # vertex group items
         total_vg = len(obj.vertex_groups.items())
 
+        #applying only "ARMATURE" modifier for .mhx2 object
         for modifiers in obj.modifiers:
             if modifiers.name != "ARMATURE":
                 modifiers.show_render = False
-            
+        
+        #making a copy of mesh on which modifier applied
         me = obj.to_mesh(scene, True,'RENDER')
+
+        #to find global coordinates of each vertex in mesh
         me.transform(obj.matrix_world)
 
-        camera_as_reference = Vector((0,3,0))
+        #camera referece point for finding 3d coordinates of vertices, 
+        # it is assumed that camera location is in front of x-z plane of blender or negative y-axis side  
+        # front view of mhx2 person
 
-        #print(total_vg)
-        #print("inserting")
+        camera_location = Vector(make_tuple(camera_loc))
+        camera_location = -1*camera_location
+        camera_as_reference = camera_location
+
         tracking_data=[]
         tracking_3D = []
         for key,value in mapping.items():
@@ -96,32 +111,35 @@ def pointTracking(scene,person_body,scene_camera_name,frame_number):
                     vs = [v for v in me.vertices if (vg_index in [vg.group for vg in v.groups])]
                     #print(vs)
                     vertc = (vert.co for vert in vs)
+
+                    #coords_2d is a list of tuple of format of (3d coords of vertex, pixel coords of vertices)
                     coords_2d = [(coord + camera_as_reference ,   world_to_camera_view(scene, cam, coord)) for coord in vertc]
 
-                    #print(vertc)
-                    #print(coords_2d)
-                    # 2d data printout:
                     rnd = lambda i: round(i)
                     rnd3 = lambda i: round(i, 3)
                     rnd5 = lambda i: round(i, 5)
 
-                    #limit_finder = lambda f: f(coords_2d, key=lambda i: i[2])[2]
-                    #limits = limit_finder(min), limit_finder(max)
-                    #limits = [rnd3(d) for d in limits]
                     track_3D_data_per_frame.append(frame_number)
                     track_3D_data_per_frame.append(key)
+
                     # x, y, d=distance_to_lens
                     track_data_per_frame.append(frame_number)
                     track_data_per_frame.append(key)
 
                     #print("Vertex_group for:",key)
                     for c in range(len(coords_2d)):
+                        #pixel space coords
                         pixel_x = rnd(res_x*coords_2d[c][1][0])
                         pixel_y = rnd(res_y*coords_2d[c][1][1])
                         depth_z = rnd3(coords_2d[c][1][2])
-                        
+
+                        #camera reference point coords in 3d
+                        X_cord = rnd5(coords_2d[c][0][0])
+                        Y_cord  = rnd5(coords_2d[c][0][2])
+                        Z_cord = rnd5(coords_2d[c][0][1])
+
                         track_data_per_frame.append((pixel_x, pixel_y, depth_z))
-                        track_3D_data_per_frame.append((rnd5(coords_2d[c][0][0]), rnd5(coords_2d[c][0][2]), rnd5(coords_2d[c][0][1])))
+                        track_3D_data_per_frame.append((X_cord,Y_cord ,Z_cord ))
                   #  print(track_data_per_frame)
             
             tracking_data.append(track_data_per_frame)
@@ -129,6 +147,7 @@ def pointTracking(scene,person_body,scene_camera_name,frame_number):
 
         outputfile_pixelSpace = "point_tracking_imageSpace"+bvhName+"_"+mhx2Name+".csv"
         outputfile_3DSpace = "point_tracking_3Dspace"+bvhName+"_"+mhx2Name+"_3Dspace"+ ".csv"
+
         with open(outputfile_pixelSpace,"a") as f1:
             writer1 = csv.writer(f1)
             writer1.writerows(tracking_data)
@@ -165,6 +184,7 @@ def render_to_video(Animation=True,point_tracking=False):
     bvhpath = os.path.join(main_path,bvhFile)
     backgroundpath =main_path+"/BackgroundImages"
     backgroundImages = getFiles(backgroundpath,".jpg")
+
     #output directory
     OutputDirPath = main_path+"\\Animation\\"
     
@@ -174,20 +194,16 @@ def render_to_video(Animation=True,point_tracking=False):
                 break
     a.spaces[0].show_background_images=True
 
-    img = bpy.data.images.load(backgroundImages[0])
+    img = bpy.data.images.load(background_image)
     texture = bpy.data.textures.new("Texture.001","IMAGE")
-    #Material = bpy.data.materials.new("MyMaterial")
     bpy.data.worlds['World'].active_texture = texture
     bpy.context.scene.world.texture_slots[0].use_map_horizon=True
     bpy.data.worlds[0].use_sky_paper = True
-    rootlen = len(mhx2path)
 
 
     curr_scn = bpy.context.scene
     bpy.context.scene.world = bpy.data.worlds[0]
     texture.image=img
-    # scene = bpy.context.screen.scenes
-    # screen = bpy.context.screen
 
     #adding canera for current scene
     bpy.ops.object.camera_add()
@@ -195,7 +211,6 @@ def render_to_video(Animation=True,point_tracking=False):
     #adding plane for floor and background
     #bpy.ops.mesh.primitive_plane_add()
     #bpy.ops.mesh.primitive_plane_add(rotation=(1.57,0,0))
-
     # planeMeshList = []
     # for plane in bpy.data.meshes.keys():
     #     if plane[:5]=="Plane":
@@ -229,9 +244,11 @@ def render_to_video(Animation=True,point_tracking=False):
     bpy.context.scene.camera = curr_camera
 
     #setting location and rotation for camera and lamp objects
-    curr_camera.location = Vector((0, -3, 0))
-    curr_camera.rotation_euler = Euler((1.57, 0, 6.28), 'XYZ')
-    curr_camera.scale = Vector((0.5, 0.5, 0.5))
+    curr_camera.location = Vector(make_tuple(camera_loc))
+    curr_camera.rotation_euler = Euler(make_tuple(camera_rot), 'XYZ')
+    curr_camera.scale = Vector((1, 1, 1))
+
+    
     curr_lamp.location = Vector((0.17385, 2.70460, 1.41230))
     curr_lamp.rotation_euler = Euler((0.032093837382793427, 0.0016589768929407, 4.444016933441162), 'XYZ')
 
@@ -278,24 +295,27 @@ def render_to_video(Animation=True,point_tracking=False):
     
     #for obtaining bvh file frames count
     file_bvh = bvhpath
+    file_bvh = file_bvh.replace("\\","/")
+    with open(file_bvh,'r') as f:
+	    for lines in f:
+		    line = f.readline()
+		    if(line.split(":")[0]=="Frames"):
+			    total_frames = int(line.split(":")[1])
     bvhFileName = file_bvh.split("/")[-1][:-4]
-    arr = file_bvh.split("\\")
-    arr = arr[-1].split("_")
-    arr = arr[-1].split(".")
-
     #frame end is total number of frames present in bvh file
-    frame_end = int(arr[0])
 
     #To set how many frame do we wanna retarget for the armature out of frame_end 
     if(EndFrame):
-        bpy.data.scenes[0].McpEndFrame = EndFrame
+        frame_end = EndFrame
+        bpy.data.scenes[0].McpEndFrame = frame_end
     else:
+        frame_end = total_frames
         bpy.data.scenes[0].McpEndFrame = frame_end
 
-    #importing bvh file
+    #importing bvh file and rescaling according to size of mhx2 person object
     bpy.ops.mcp.load_and_retarget(filter_glob = ".bvh",filepath = file_bvh)
 
-    #frame_range is equal to McpEndFrame(which we fixed before)
+    #frame_range is equal to McpEndFrame
     frame_range = bpy.data.objects[person_name].animation_data.action.frame_range[1]
 
     #for simplyfying f curves 
@@ -318,19 +338,30 @@ def render_to_video(Animation=True,point_tracking=False):
 
     #if animation what we need
     if(Animation==True):
-        #input for frame per second
         bpy.data.scenes[0].render.fps=args.fps
-
-        #input for video format file
         bpy.data.scenes[0].render.image_settings.file_format = args.videoFormat
-
-        #filepath for output video
         bpy.data.scenes[0].render.filepath = OutputDirPath+person_name+"\\"+bvhFileName
         bpy.context.scene.render.use_overwrite = False
 
-        #rendering
-        bpy.ops.render.render(animation=True)
-        print("Animated...")
+        #input for frame per second
+        if(is_preview==True):
+            bpy.data.scenes[0].render.image_settings.file_format = "JPEG"
+            image = "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/"+person_name+bvhFileName
+            bpy.data.scenes[0].render.filepath =image
+            bpy.data.scenes[0].render.resolution_x = 1920 #perhaps set resolution in code
+            bpy.context.scene.render.resolution_y = 1080
+            bpy.ops.render.render(write_still=True)
+            os.startfile(image+".jpg")
+            want_continue = input("Do You want to continue:")
+            if(want_continue=="1"):
+                    bpy.ops.render.render(animation=True)
+                    print("Animated...")
+                    os.remove(image+".jpg")
+            else: 
+                    print("please change camera location accordingly and re-render")
+        else:
+            bpy.ops.render.render(animation=True)
+            print("Animated...")
 
     #if point tracking what we need
     if(point_tracking==True):
@@ -341,15 +372,21 @@ def render_to_video(Animation=True,point_tracking=False):
                     pointTracking(curr_scn,person_name+":Body",bpy.data.cameras[0].name,f)
     
 if __name__ == "__main__":
-      
+    
+    print("enter")
     parser = ArgumentParserForBlender()
     parser.add_argument('--bvhFile',type=str,help='provide bvh file path',required=True)
     parser.add_argument('--mhx2File',type=str,help='provide mhx2 model file path',required=True)
     parser.add_argument('--fps',default=15,type=int,help='Please provide frame rate for Animation(default=15)',required=True)
     parser.add_argument('--FramesToRetarget',type=int,help="How many frames do you wanna retarget(default=All the frames present in bvh file)")
     parser.add_argument('--videoFormat',default='FFMPEG',help='video format in which animation will be generated(default=FFMPEG)',choices=['FFMPEG','AVI_JPEG','AVI_RAW'],required=True)
+    parser.add_argument('--background_image',type=str,help='provide background image for animation',required=True)
     parser.add_argument('--Animation',default=False,type=lambda x: (str(x).lower() == 'true'),help='True if you want to get animation video(default False)')
     parser.add_argument('--Point_tracking',default=False,type=lambda x: (str(x).lower() == 'true'),help='True if you want to get point tracking of vertices(default=False)')
+    parser.add_argument('--camera_location',default="(0,-3,0)",help='specify a camera location as in format-(x,y,z),default is (0,-3,0)')
+    parser.add_argument('--camera_rotation',default="(1.57,0,6.28)",help='specifify camera rotation as in format(x,y,z) in radians- default is(1.57,0,6.28)')
+    parser.add_argument('--is_preview',default=True,type=lambda x: (str(x).lower() == 'true'),help="do you want to visualize for your camera location camera location",required=True)
+
 
     args = parser.parse_args()
     bvhFile = args.bvhFile
@@ -363,6 +400,10 @@ if __name__ == "__main__":
     videoFormat =args.videoFormat
     bool_animation = args.Animation
     bool_pointtracking = args.Point_tracking
+    background_image = args.background_image
+    is_preview = args.is_preview
+    camera_loc = args.camera_location
+    camera_rot = args.camera_rotation
     print(bool_animation)
     print(bool_pointtracking)
     render_to_video(Animation=bool_animation,point_tracking=bool_pointtracking)
