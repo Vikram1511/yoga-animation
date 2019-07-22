@@ -68,18 +68,15 @@ The aim of this project is to create 3D animation using Motion Captured files an
  - Clone the repository
  - set blender as an environmental variable
  - Use makehuman to create a human model and export it as a mhx2 model
- - since installed blender location differ in windows and linux, therefor location of blender should be modified in **run_render.sh** and **run_render_All.sh**
  - to generate bvh files for kinect joints data files
     - bash script **myCSVgenerator.sh** do that job and it takes one command line argument as location of kinect output files
-    - `$ bash myCSVgenerator.sh {input folder location where kinect output file exist}`, it will convert rawCSV files to processed CSV       files which will be generated in **csv_to_bvh/processedCSV** folder
+    - `$ bash myCSVgenerator.sh {input folder location where kinect output file exist}`, it will convert kinect raw output csv files to processed CSV files which will be generated in **csv_to_bvh/processedCSV** folder
 
-    - `$ bash myBVHgenerator.sh` to convert processed joints output to bvh files which will be generated in **bvhFiles** folder
+    - `$ bash myBVHgenerator.sh` to convert all processed joints output to bvh files which will be generated in **bvhFiles** folder
 
     - alternatively both the processess mentioned above can be done with single line of code `$ bash toBVH.sh {command line input -         folder where kinect output file exist}`
 
-**How to Generate Animation**
-- Code can be used for generating animation video and also tracking coordinates of each vertices of makehuman mhx2 model in image space and also in 3D space of blender(camera location as reference point same as in kinect IR depth sensor locate space coordinates)
-
+## command line arguments
 - our animation code takes these command line arguments
 <table style="border-collapse: collapse;">
     <tr>
@@ -135,6 +132,9 @@ The aim of this project is to create 3D animation using Motion Captured files an
     
 </table>
 
+## How to Generate Animation
+- Code can be used for generating animation video and also tracking coordinates of each vertices of makehuman mhx2 model in image pixel space and also in 3D space of blender interface(camera location as reference point, same as in kinect IR depth sensor locate space coordinates)
+
 - **Single animation video for given input files**
     - we need to feed two input files for animation, one is mocap bvh file and another is makehuman mhx2 model
     - for generating Animation as output, boolean *--Animation* should be *True*
@@ -142,7 +142,13 @@ The aim of this project is to create 3D animation using Motion Captured files an
     - or you can generate both simultaneously by giving both of these boolean command line argument value *True*  such as
     - `$ bash run_render.sh --bvhFile {your input bvh file}  --mhx2File {your input mhx2 file} --fps {input frame rate(type-int)}            --FramesToRetarget {input of total number of frames you want to retarget(optional) type-int} --videoFormat {input video file format(default is FFMEPG)} --background_image {complete path for background image} --Animation {True or False} --Point_tracking {True or False} --camera_location {input camera location} --camera_rotation {input camera rotation} --is_preview True` 
 
-    - the code will generate a preview image and pause untill asked input is provided for the animation 
+    - the code will generate a preview rendered image of camera view and stops for further execution, this can help to set camera location correct as required  
+    <table>
+    <tr>
+    <td><img src="images/blender-coords.png" width="300" ></td>
+    <td><b>blender world coordinate system, imported mhx2 model in blender faces towards negative y-axis</b></td>
+    </tr>
+    </table>
     - this is for verifying that set camera location gives view range satisfactory for animation so that we can proceed further, it asks    for permission to continue("1") or stop("0") the code and reset camera location
 
 - **Generating animation video files for all the bvh file generated in *bvhFiles* folder**
