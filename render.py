@@ -340,13 +340,14 @@ def render_to_video(Animation=True,point_tracking=False):
     if(Animation==True):
         bpy.data.scenes[0].render.fps=args.fps
         bpy.data.scenes[0].render.image_settings.file_format = args.videoFormat
-        bpy.data.scenes[0].render.filepath = OutputDirPath+person_name+"\\"+bvhFileName
+        render_path = OutputDirPath+person_name+"\\"+bvhFileName
+        bpy.data.scenes[0].render.filepath = render_path
         bpy.context.scene.render.use_overwrite = False
 
         #input for frame per second
         if(is_preview==True):
             bpy.data.scenes[0].render.image_settings.file_format = "JPEG"
-            image = "C:/Users/Vikram Jain/Documents/GitHub/yoga-pose-estimation/"+person_name+bvhFileName
+            image = script_path+"/"+person_name+bvhFileName
             bpy.data.scenes[0].render.filepath =image
             bpy.data.scenes[0].render.resolution_x = 1920 #perhaps set resolution in code
             bpy.context.scene.render.resolution_y = 1080
@@ -354,6 +355,8 @@ def render_to_video(Animation=True,point_tracking=False):
             os.startfile(image+".jpg")
             want_continue = input("Do You want to continue:")
             if(want_continue=="1"):
+                    bpy.data.scenes[0].render.image_settings.file_format = args.videoFormat
+                    bpy.data.scenes[0].render.filepath = render_path
                     bpy.ops.render.render(animation=True)
                     print("Animated...")
                     os.remove(image+".jpg")
