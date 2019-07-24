@@ -15,9 +15,20 @@ The aim of this project is to create 3D animation using Motion Captured files an
 - Makehuman 1.1.0
 - this code is developed on Windows10 ,can also be used on Linux
 
+## Contents
+* [Requirements](#requirements)
+* [Getting Familiar with Datasets](#Getting-Familiar-with-the-Datasets)
+    * [Kinect Output files](#Kinect-output-Joints-CSV-files)
+    * [BVH Files](#BVH-Files)
+    * [MakeHuman mhx2 model files](#MakeHuman-Mhx2-model-files)
+* [Setup for blender](#Setup-for-Blender)
+* [How to Use](#How-to-use)
+* [Command Line Arguments](#command-line-arguments)
+* [How to Generate Animation](#How-to-Generate-Animation)
+
 ## *Getting Familiar with the Datasets*
 
-### Kinect output Joints CSV files(files present in *csv_to_bvh/rawCSV*)
+### Kinect output Joints CSV files
  -  Kinect v2 identifies 25 joints of a human model
  
 <table>
@@ -37,7 +48,7 @@ The aim of this project is to create 3D animation using Motion Captured files an
 
  - We process these rawCSV files to different csv file format(files present in **csv_to_bvh/processedCSV**) in which every line contains joint coodinates and tracked/inferred information for all joints types and where first column is timestamp shows time when that specific frame is captured 
 
-### BVH Files(Files present in *bvhFiles/*)
+### BVH Files
  - A BVH file contains moving skeleton information and it has its specific format for containing the data, more information can be found [here](http://www.cs.cityu.edu.hk/~howard/Teaching/CS4185-5185-2007-SemA/Group12/BVH.html)
  - we used  [kinect-openni-bvh-saver](https://github.com/meshonline/kinect-openni-bvh-saver) code for converting our joints csv data to bvh format, However some changes were made to use this code, this code converts live feed from kinect into bvh file, also is uses NiTE to get joint locations, changes were made to make it possible for it to use existing joint data collected from using kinect and kinect api.(The joints recorded differ in kinect api and NiTE)
 
@@ -46,7 +57,7 @@ The aim of this project is to create 3D animation using Motion Captured files an
  
   <img src="images/skeleton_bvh.png" alt="drawing" width="700"/>
 
-### MakeHuman Mhx2 model(Files present in *characters/*)  
+### MakeHuman Mhx2 model files
 - Make human model is a 3d human model which is a collection of skin mesh and its specified rig, we can use blender3D software for retargetting motion capture data exist in bvh files to mhx2 model and get the synthetic human animation.
 - makehuman and its plugis can be downloaded from [here](http://files.jwp.se/archive/releases/1.1.0/)
 
@@ -76,7 +87,7 @@ The aim of this project is to create 3D animation using Motion Captured files an
 
     - alternatively both the processess mentioned above can be done with single line of code `$ bash toBVH.sh {command line input -         folder where kinect output file exist}`
 
-## command line arguments
+## Command line arguments
 - our animation code takes these command line arguments
 <table style="border-collapse: collapse;">
     <tr>
