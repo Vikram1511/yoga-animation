@@ -151,6 +151,7 @@ The aim of this project is to create 3D animation using Motion Captured files an
     - for generating Animation as output, boolean *--Animation* should be *True*
     - for generating point tracking files for as output, boolean *--Point_tracking* shoul be *True*
     - or you can generate both simultaneously by giving both of these boolean command line argument value *True*  such as
+    - NOTE -  please provide complete path of background image which is choosen for video rendering
     - `$ bash run_render.sh --bvhFile {your input bvh file}  --mhx2File {your input mhx2 file} --fps {input frame rate(type-int)}            --FramesToRetarget {input of total number of frames you want to retarget(optional) type-int} --videoFormat {input video file format(default is FFMEPG)} --background_image {complete path for background image} --Animation {True or False} --Point_tracking {True or False} --camera_location {input camera location} --camera_rotation {input camera rotation} --is_preview True` 
 
     - the code will generate a preview rendered image of camera view and stops for further execution, this can help to set camera location correct as required  
